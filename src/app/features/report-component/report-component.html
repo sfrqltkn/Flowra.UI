@@ -1,0 +1,205 @@
+<div class="p-6 md:p-10 max-w-[1200px] mx-auto min-h-screen animate-fade-in space-y-8">
+
+<header class="mb-8">
+    <button routerLink="/dashboard" class="text-slate-500 hover:text-indigo-600 flex items-center gap-2 mb-4 transition-colors font-bold text-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      Özete Dön
+    </button>
+
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      <div>
+        <h1 class="text-4xl font-extrabold text-slate-800 tracking-tight flex items-center gap-3">
+          <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          </div>
+          Gelişmiş Finans Raporu
+        </h1>
+        <p class="text-slate-500 mt-2 font-medium">Bütçenizin A, B ve C senaryolarına göre kırılımlı analizi ve güncel bilançonuz.</p>
+      </div>
+
+      <div class="flex items-center bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm mt-4 md:mt-0">
+        <button (click)="previousMonth()" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+
+        <div class="w-40 text-center flex flex-col items-center justify-center">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Analiz Edilen Ay</span>
+          <span class="text-sm font-black text-slate-700 leading-none">{{ displayMonthName }}</span>
+        </div>
+
+        <button (click)="nextMonth()" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm space-y-8">
+    <div class="flex flex-col border-b border-slate-100 pb-4">
+      <div class="flex items-center gap-3">
+        <span class="w-4 h-4 rounded-full bg-emerald-500 shadow-sm"></span>
+        <h4 class="text-lg font-black text-slate-800 uppercase tracking-widest">A Planı: Tüm Borçların Kapatılması</h4>
+      </div>
+      <p class="text-sm text-slate-500 mt-2 pl-7">Nakit ve yatırımlarınızı kullanarak tüm borçlarınızı tek seferde kapattığınızı varsayan detaylı bilanço.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+
+      <div class="flex flex-col h-full space-y-4">
+        <h5 class="text-sm font-bold text-emerald-600 border-b-2 border-emerald-100 pb-3 mb-4 flex items-center gap-2 uppercase tracking-widest">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Artı Bakiyeler (Varlık & Gelir)
+        </h5>
+
+        <div class="flex-1 space-y-2">
+          @if (calculator.cashBalance() > 0) {
+            <div class="flex justify-between items-center p-3 bg-emerald-50/50 rounded-xl border border-emerald-100/50">
+              <span class="text-emerald-700 font-bold">Mevcut Nakit Kasa</span>
+              <span class="font-black text-emerald-700">+{{ calculator.cashBalance() | currency:'TRY':'₺':'1.2-2' }}</span>
+            </div>
+          }
+
+          @for (inc of calculator.currentMonthIncomes(); track inc.id) {
+            <div class="flex justify-between items-center p-3 hover:bg-slate-50 rounded-xl transition-colors">
+              <span class="text-slate-600 font-medium">{{ inc.name }}</span>
+              <span class="font-black text-slate-800">+{{ inc.amount | currency:'TRY':'₺':'1.2-2' }}</span>
+            </div>
+          }
+
+          @for (asset of calculator.currentMonthAssets(); track asset.id) {
+            <div class="flex justify-between items-center p-3 hover:bg-indigo-50/50 rounded-xl transition-colors">
+              <span class="text-slate-600 font-medium flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-indigo-400"></span> {{ asset.amount }}x {{ asset.name }}
+              </span>
+              <span class="font-black text-indigo-600">+{{ (asset.amount * asset.estimatedUnitValue) | currency:'TRY':'₺':'1.2-2' }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="flex justify-between items-center p-4 bg-emerald-50 rounded-xl border border-emerald-200 mt-auto">
+          <span class="text-emerald-800 font-black uppercase text-sm tracking-wider">Toplam Gelir & Varlık</span>
+          <span class="font-black text-emerald-700 text-xl">+{{ calculator.incomeScenario1() | currency:'TRY':'₺':'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col h-full space-y-4">
+        <h5 class="text-sm font-bold text-rose-600 border-b-2 border-rose-100 pb-3 mb-4 flex items-center gap-2 uppercase tracking-widest">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg> Eksi Bakiyeler (Borç & Çıkış)
+        </h5>
+
+        <div class="flex-1 space-y-2">
+          @if (calculator.cashBalance() < 0) {
+            <div class="flex justify-between items-center p-3 bg-rose-50 rounded-xl border border-rose-200">
+              <span class="text-rose-700 font-bold">Kasa Açığı (Eksi Bakiye)</span>
+              <span class="font-black text-rose-600">{{ calculator.cashBalance() | currency:'TRY':'₺':'1.2-2' }}</span>
+            </div>
+          }
+
+          @for (exp of calculator.currentMonthExpenses(); track exp.id) {
+            <div class="flex justify-between items-center p-3 hover:bg-slate-50 rounded-xl transition-colors">
+              <span class="text-slate-600 font-medium flex items-center gap-2">
+                {{ exp.name }}
+                @if (exp.isCreditCard) { <span class="text-[10px] bg-indigo-50 text-indigo-500 px-2 py-0.5 rounded-lg font-bold border border-indigo-100">K. Kartı</span> }
+              </span>
+              <span class="font-black text-rose-600">-{{ exp.totalAmount | currency:'TRY':'₺':'1.2-2' }}</span>
+            </div>
+          }
+
+          @for (allowance of state.allowances(); track allowance.id) {
+            <div class="flex justify-between items-center p-3 hover:bg-slate-50 rounded-xl transition-colors">
+              <span class="text-slate-600 font-medium">{{ allowance.personName }} (Harçlık)</span>
+              <span class="font-black text-rose-600">-{{ allowance.amount | currency:'TRY':'₺':'1.2-2' }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="flex justify-between items-center p-4 bg-rose-50 rounded-xl border border-rose-200 mt-auto">
+          <span class="text-rose-800 font-black uppercase text-sm tracking-wider">Toplam Borç & Çıkış</span>
+          <span class="font-black text-rose-700 text-xl">-{{ calculator.expenseScenario1() | currency:'TRY':'₺':'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-between items-center p-6 bg-slate-900 text-white rounded-2xl mt-8 shadow-xl relative overflow-hidden">
+      <div class="absolute right-0 top-0 w-32 h-32 bg-emerald-500 rounded-full blur-3xl opacity-20"></div>
+      <div class="relative z-10 text-center sm:text-left mb-2 sm:mb-0">
+        <span class="font-bold uppercase tracking-widest text-sm text-emerald-400 block mb-1">A Planı Sonucu</span>
+        <span class="text-slate-300 text-xs">Tüm borçlar sıfırlandığında kalan toplam servetiniz.</span>
+      </div>
+      <span class="text-4xl font-black relative z-10 tracking-tight">{{ calculator.netWorth() | currency:'TRY':'₺':'1.2-2' }}</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <div class="bg-indigo-50/80 p-8 rounded-[2rem] border border-indigo-100 shadow-sm flex flex-col justify-between relative overflow-hidden">
+      <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-indigo-500 rounded-full blur-3xl opacity-10"></div>
+      <div class="relative z-10">
+        <div class="flex items-center gap-3 border-b border-indigo-200/50 pb-4 mb-6">
+          <span class="w-4 h-4 rounded-full bg-indigo-500 shadow-sm"></span>
+          <h4 class="text-lg font-black text-indigo-900 uppercase tracking-widest">B Planı: Temiz Nakit</h4>
+        </div>
+        <p class="text-sm text-indigo-700 font-medium mb-6">Varlıklarınıza dokunmadan, sadece elinizdeki nakitle borçların asgarisini ödediğinizde cebinizde kalacak nakit.</p>
+
+        <div class="space-y-3 bg-white/60 p-4 rounded-2xl border border-indigo-50">
+
+          <div class="flex justify-between items-center p-2">
+            <span class="text-sm font-bold text-emerald-600">Aylık Nakit Gelirler</span>
+            <span class="font-black text-emerald-600">+{{ calculator.totalIncome() | currency:'TRY':'₺':'1.2-2' }}</span>
+          </div>
+
+          <div class="flex justify-between items-center p-2">
+            <span class="text-xs font-bold text-rose-500 uppercase tracking-widest">Sadece Asgari Çıkış</span>
+            <span class="font-black text-rose-600">-{{ calculator.expenseScenario4() | currency:'TRY':'₺':'1.2-2' }}</span>
+          </div>
+
+          @if (calculator.cashBalance() < 0) {
+            <div class="flex justify-between items-center p-2 bg-rose-50/50 rounded-lg border-t border-indigo-100/50 pt-4 mt-2">
+              <span class="text-sm font-bold text-rose-600">Kasa Açığı</span>
+              <span class="font-black text-rose-600">{{ calculator.cashBalance() | currency:'TRY':'₺':'1.2-2' }}</span>
+            </div>
+          } @else if (calculator.cashBalance() >= 0) {
+            <div class="flex justify-between items-center p-2 bg-emerald-50/50 rounded-lg border-t border-indigo-100/50 pt-4 mt-2">
+              <span class="text-sm font-bold text-emerald-600">Mevcut Nakit Kasa</span>
+              <span class="font-black text-emerald-600">+{{ calculator.cashBalance() | currency:'TRY':'₺':'1.2-2' }}</span>
+            </div>
+          }
+
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center justify-center p-6 bg-white border border-indigo-100 rounded-2xl mt-6 shadow-sm text-center relative z-10">
+        <span class="font-bold uppercase tracking-widest text-xs text-indigo-500 mb-1">KALAN NET NAKİT</span>
+        <span class="text-4xl font-black text-indigo-700 tracking-tight">{{ calculator.endOfMonthCashWithMinimums() | currency:'TRY':'₺':'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <div class="bg-cyan-50/80 p-8 rounded-[2rem] border border-cyan-100 shadow-sm flex flex-col justify-between relative overflow-hidden">
+      <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-cyan-500 rounded-full blur-3xl opacity-10"></div>
+      <div class="relative z-10">
+        <div class="flex items-center gap-3 border-b border-cyan-200/50 pb-4 mb-6">
+          <span class="w-4 h-4 rounded-full bg-cyan-500 shadow-sm"></span>
+          <h4 class="text-lg font-black text-cyan-900 uppercase tracking-widest">C Planı: Varlık Koruma</h4>
+        </div>
+        <p class="text-sm text-cyan-800 font-medium mb-6">Borçların asgarisini ödeyip, kalan nakit paranız ve elinizde tuttuğunuz varlıkların (altın, döviz) toplamıyla oluşan güncel servetiniz.</p>
+
+        <div class="space-y-3 bg-white/60 p-4 rounded-2xl border border-cyan-50">
+          <div class="flex justify-between items-center p-2">
+            <span class="text-sm font-bold text-indigo-600">Nakit Gücü (B Planından Kalan)</span>
+            <span class="font-black text-indigo-700">{{ calculator.endOfMonthCashWithMinimums() | currency:'TRY':'₺':'1.2-2' }}</span>
+          </div>
+          <div class="flex justify-between items-center p-2 border-t border-cyan-100/50 pt-4 mt-2">
+            <span class="text-sm font-bold text-emerald-600 uppercase tracking-widest">Eldeki Varlıklar Toplamı</span>
+            <span class="font-black text-emerald-600">+{{ calculator.totalAssetsValue() | currency:'TRY':'₺':'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center justify-center p-6 bg-white border border-cyan-200 rounded-2xl mt-6 shadow-sm text-center relative z-10">
+        <span class="font-bold uppercase tracking-widest text-xs text-cyan-600 mb-1">KALAN BİLEŞİK SERVET</span>
+        <span class="text-4xl font-black text-cyan-700 tracking-tight">{{ (calculator.endOfMonthCashWithMinimums() + calculator.totalAssetsValue()) | currency:'TRY':'₺':'1.2-2' }}</span>
+      </div>
+    </div>
+
+  </div>
+</div>

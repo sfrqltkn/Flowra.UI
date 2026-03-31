@@ -1,0 +1,168 @@
+<div class="p-6 md:p-10 max-w-[1400px] mx-auto min-h-screen animate-fade-in space-y-8">
+
+<header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div>
+      <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">Finansal Özet</h1>
+      <p class="text-slate-500 text-sm mt-1 font-medium">Bütçenizin, nakit akışınızın ve varlıklarınızın anlık durumu.</p>
+    </div>
+
+    <div class="flex items-center bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+      <button (click)="previousMonth()" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      </button>
+
+      <div class="w-40 text-center flex flex-col items-center justify-center">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Seçili Dönem</span>
+        <span class="text-sm font-black text-slate-700 leading-none">{{ displayMonthName }}</span>
+      </div>
+
+      <button (click)="nextMonth()" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button routerLink="/add-transaction" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-indigo-600/30 hover:-translate-y-0.5 hover:shadow-xl transition-all flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        Yeni İşlem
+      </button>
+    </div>
+  </header>
+
+  <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 rounded-[2rem] p-8 md:p-10 shadow-2xl text-white relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-8 border border-slate-800">
+    <div class="absolute -top-24 -left-24 w-64 h-64 bg-indigo-500 rounded-full blur-3xl opacity-20"></div>
+    <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-emerald-500 rounded-full blur-3xl opacity-10"></div>
+
+    <div class="relative z-10 flex-1">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <p class="text-indigo-200 text-sm font-bold uppercase tracking-widest">Tüm Borçlar Ödendikten Sonra Net Servet</p>
+      </div>
+      <p class="text-5xl md:text-7xl font-black tracking-tight drop-shadow-md text-white">
+        {{ (calculator.cashBalance() + calculator.totalIncome() + calculator.totalAssetsValue() - calculator.totalExpenses()) | currency:'TRY':'₺':'1.2-2' }}
+      </p>
+      <p class="text-indigo-300 text-sm mt-3 font-medium bg-white/5 inline-block px-3 py-1 rounded-lg border border-white/10">Nakit paranız, maaşınız ve yatırımlarınızla tüm borçları kapattığınızda kalan gerçek gücünüz.</p>
+    </div>
+  </div>
+
+<div class="mb-6 mt-12 flex items-center gap-4">
+  <div class="w-2 h-8 bg-emerald-500 rounded-full"></div>
+  <h2 class="text-xl font-black text-slate-800 tracking-tight">Gelir & Varlık Senaryoları</h2>
+  <div class="h-px bg-slate-200 flex-1 ml-4"></div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
+
+  <div class="col-span-1 md:col-span-1 lg:col-span-2 bg-gradient-to-br from-emerald-50 to-white rounded-3xl p-6 shadow-sm border border-emerald-100 relative overflow-hidden group">
+    <div class="absolute right-0 top-0 w-16 h-16 bg-emerald-100 rounded-bl-3xl flex items-center justify-center text-emerald-600 transition-transform group-hover:scale-110"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+    <p class="text-[11px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Maksimum Güç (Durum 1)</p>
+    <p class="text-[10px] text-slate-400 mb-2 leading-tight">Artı Kasa + Aylık Gelirler + Varlıklar</p>
+    <p class="text-3xl font-black text-slate-800">+{{ calculator.incomeScenario1() | currency:'TRY':'₺':'1.2-2' }}</p>
+  </div>
+
+  <div class="col-span-1 md:col-span-1 lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 relative overflow-hidden group">
+    <div class="absolute right-0 top-0 w-16 h-16 bg-slate-50 rounded-bl-3xl flex items-center justify-center text-emerald-500 transition-transform group-hover:scale-110"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg></div>
+    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Aylık Nakit Akışı (Durum 2)</p>
+    <p class="text-[10px] text-slate-400 mb-2 leading-tight">Sadece ham nakit gelirler (Maaş, Kira vb.)</p>
+    <p class="text-3xl font-black text-slate-800">+{{ calculator.incomeScenario2() | currency:'TRY':'₺':'1.2-2' }}</p>
+  </div>
+
+  <div class="col-span-1 md:col-span-1 lg:col-span-2 bg-gradient-to-br from-indigo-50 to-white rounded-3xl p-6 shadow-sm border border-indigo-100 relative overflow-hidden group">
+    <div class="absolute right-0 top-0 w-16 h-16 bg-indigo-100 rounded-bl-3xl flex items-center justify-center text-indigo-600 transition-transform group-hover:scale-110"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg></div>
+    <p class="text-[11px] font-bold text-indigo-500 uppercase tracking-widest mb-1">Yatırım & Varlık (Durum 3)</p>
+    <p class="text-[10px] text-slate-400 mb-2 leading-tight">Altın, Gümüş, Döviz vb. varlıklarınız</p>
+    <p class="text-3xl font-black text-indigo-700">+{{ calculator.incomeScenario3() | currency:'TRY':'₺':'1.2-2' }}</p>
+  </div>
+
+</div>
+
+<div class="mb-6 mt-12 flex items-center gap-4">
+  <div class="w-2 h-8 bg-rose-500 rounded-full"></div>
+  <h2 class="text-xl font-black text-slate-800 tracking-tight">Gider & Borç Senaryoları</h2>
+  <div class="h-px bg-slate-200 flex-1 ml-4"></div>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
+
+  <div class="col-span-1 sm:col-span-1 lg:col-span-3 bg-white rounded-3xl p-6 shadow-sm border border-rose-200 relative overflow-hidden group">
+    <div class="absolute right-0 top-0 w-16 h-16 bg-rose-50 rounded-bl-3xl flex items-center justify-center text-rose-600 transition-transform group-hover:scale-110"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg></div>
+    <p class="text-[11px] font-bold text-rose-500 uppercase tracking-widest mb-1">Ağır Borç Yükü (Durum 1)</p>
+    <p class="text-[10px] text-slate-400 mb-2 leading-tight">Tüm Giderler(Kasa Dahil)</p>
+    <p class="text-3xl font-black text-rose-600">-{{ calculator.expenseScenario1() | currency:'TRY':'₺':'1.2-2' }}</p>
+  </div>
+
+  <div class="col-span-1 sm:col-span-1 lg:col-span-3 bg-white rounded-3xl p-6 shadow-sm border border-slate-200 relative overflow-hidden group">
+    <div class="absolute right-0 top-0 w-16 h-16 bg-slate-50 rounded-bl-3xl flex items-center justify-center text-slate-500 transition-transform group-hover:scale-110"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+    <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Standart Borç (Durum 2)</p>
+    <p class="text-[10px] text-slate-400 mb-2 leading-tight">Tüm Giderler (Kasa hariç)</p>
+    <p class="text-3xl font-black text-slate-600">-{{ calculator.expenseScenario2() | currency:'TRY':'₺':'1.2-2' }}</p>
+  </div>
+
+  <div class="col-span-1 sm:col-span-1 lg:col-span-3 bg-amber-50/30 rounded-3xl p-6 shadow-sm border border-amber-200 relative overflow-hidden group">
+    <div class="absolute right-0 top-0 w-16 h-16 bg-amber-100 rounded-bl-3xl flex items-center justify-center text-amber-600 transition-transform group-hover:scale-110"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+    <p class="text-[11px] font-bold text-amber-600 uppercase tracking-widest mb-1">Acil Durum Yükü (Durum 3)</p>
+    <p class="text-[10px] text-slate-400 mb-2 leading-tight">Asgari Kart Ödemeli Tüm Giderler (Kasa Dahil)</p>
+    <p class="text-3xl font-black text-amber-600">-{{ calculator.expenseScenario3() | currency:'TRY':'₺':'1.2-2' }}</p>
+  </div>
+
+  <div class="col-span-1 sm:col-span-1 lg:col-span-3 bg-white rounded-3xl p-6 shadow-sm border border-slate-200 relative overflow-hidden group">
+    <div class="absolute right-0 top-0 w-16 h-16 bg-slate-50 rounded-bl-3xl flex items-center justify-center text-slate-400 transition-transform group-hover:scale-110"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></div>
+    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Asgari Harcama (Durum 4)</p>
+    <p class="text-[10px] text-slate-400 mb-2 leading-tight">Asgari Kart Ödemeli Tüm Giderler (Kasa hariç)</p>
+    <p class="text-3xl font-black text-slate-500">-{{ calculator.expenseScenario4() | currency:'TRY':'₺':'1.2-2' }}</p>
+  </div>
+
+</div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-bold text-slate-800">Yaklaşan Ödemeler</h2>
+        <span class="px-3 py-1 bg-rose-100 text-rose-600 rounded-lg text-xs font-bold">{{ calculator.upcomingPayments().length }} Bekleyen</span>
+      </div>
+
+      @if (calculator.upcomingPayments().length === 0) {
+        <div class="flex flex-col items-center justify-center py-12 text-slate-400 border-2 border-dashed border-slate-100 rounded-2xl bg-slate-50/50">
+          <svg class="w-10 h-10 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <p class="font-medium text-sm">Bekleyen bir ödemeniz görünmüyor.</p>
+        </div>
+      } @else {
+        <div class="space-y-3">
+          @for (payment of calculator.upcomingPayments().slice(0, 4); track payment.id) {
+            <div class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 hover:border-indigo-100 hover:shadow-md transition-all group">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center font-black border border-slate-200 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                  {{ payment.date | date:'dd' }}
+                </div>
+                <div>
+                  <p class="font-bold text-slate-700">{{ payment.name }}</p>
+                  <p class="text-xs text-slate-400 mt-0.5 font-medium">{{ payment.date | date:'MMMM yyyy' }}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-black text-rose-600">{{ payment.totalAmount | currency:'TRY':'₺':'1.2-2' }}</p>
+                @if (payment.isCreditCard && payment.minimumPaymentAmount) {
+                  <p class="text-[10px] font-bold text-indigo-500 mt-1">Asgari: {{ payment.minimumPaymentAmount | currency:'TRY':'₺':'1.2-2' }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="bg-gradient-to-br from-indigo-600 to-violet-800 rounded-3xl p-8 shadow-lg text-white relative overflow-hidden flex flex-col justify-center items-center text-center group cursor-pointer" routerLink="/report">
+      <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-150"></div>
+      <div class="relative z-10 w-20 h-20 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mb-6 shadow-inner border border-white/20">
+        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+      </div>
+      <h3 class="text-2xl font-black mb-3 relative z-10">Gelişmiş Bilanço & Analiz</h3>
+      <p class="text-indigo-100 font-medium mb-8 relative z-10 max-w-sm">A, B ve C senaryolarına göre simülasyonlarınızı görüntüleyin ve finansal gücünüzü detaylı keşfedin.</p>
+      <button class="bg-white text-indigo-700 font-bold px-8 py-3.5 rounded-2xl shadow-md group-hover:-translate-y-1 transition-all relative z-10 flex items-center gap-2">
+        Raporu Görüntüle <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+      </button>
+    </div>
+
+  </div>
+</div>

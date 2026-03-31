@@ -1,0 +1,83 @@
+<div class="p-8 max-w-3xl mx-auto min-h-screen">
+
+  <div class="mb-8">
+    <button (click)="goBack()" class="text-slate-500 hover:text-indigo-600 flex items-center gap-2 mb-4 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      Geri Dön
+    </button>
+    <h1 class="text-3xl font-extrabold text-slate-800">Yeni İşlem Ekle</h1>
+    <p class="text-slate-500 mt-1">Gelir veya gider detaylarını sisteme girin.</p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+
+    <div class="flex border-b border-slate-100">
+      <button
+        (click)="setTransactionType('expense')"
+        class="flex-1 py-4 text-center font-medium transition-colors"
+        [ngClass]="transactionType === 'expense' ? 'text-rose-600 border-b-2 border-rose-600 bg-rose-50/50' : 'text-slate-500 hover:bg-slate-50'">
+        Gider Ekle
+      </button>
+      <button
+        (click)="setTransactionType('income')"
+        class="flex-1 py-4 text-center font-medium transition-colors"
+        [ngClass]="transactionType === 'income' ? 'text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50/50' : 'text-slate-500 hover:bg-slate-50'">
+        Gelir Ekle
+      </button>
+    </div>
+
+    <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="p-6 space-y-6">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">İşlem Adı</label>
+          <input type="text" formControlName="name" placeholder="Örn: Maaş, Kira, Kredi Kartı..."
+                 class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Tutar (₺)</label>
+          <input type="number" formControlName="amount" placeholder="0.00"
+                 class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Tarih</label>
+        <input type="date" formControlName="date"
+               class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+      </div>
+
+      @if (transactionType === 'expense') {
+        <div class="p-4 bg-slate-50 rounded-xl space-y-4 border border-slate-100">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" formControlName="isCreditCard" class="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+            <span class="text-slate-700 font-medium">Bu bir kredi kartı borcu mu?</span>
+          </label>
+
+          @if (transactionForm.get('isCreditCard')?.value) {
+            <div class="pl-8 mt-4 animate-fade-in">
+              <label class="block text-sm font-medium text-slate-700 mb-2">Asgari Ödeme Tutarı (₺)</label>
+              <input type="number" formControlName="minimumPaymentAmount" placeholder="Asgari tutarı girin..."
+                     class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+              <p class="text-xs text-slate-400 mt-2">Dashboard hesaplamalarında kalan bakiyeyi bulmak için bu tutar baz alınacaktır.</p>
+            </div>
+          }
+        </div>
+      }
+
+      <label class="flex items-center gap-3 cursor-pointer">
+        <input type="checkbox" formControlName="isRecurring" class="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+        <span class="text-slate-700 font-medium">Bu işlem her ay tekrarlanır mı? (Gelecek projeksiyonu için)</span>
+      </label>
+
+      <div class="pt-4">
+        <button type="submit" [disabled]="transactionForm.invalid"
+                class="w-full py-4 rounded-xl text-white font-bold text-lg transition-all"
+                [ngClass]="transactionType === 'expense' ? 'bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300' : 'bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300'">
+          {{ transactionType === 'expense' ? 'Gideri Kaydet' : 'Geliri Kaydet' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

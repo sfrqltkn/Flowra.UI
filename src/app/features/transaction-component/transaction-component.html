@@ -1,0 +1,194 @@
+<div class="p-6 md:p-10 max-w-[1200px] mx-auto min-h-screen animate-fade-in relative">
+
+<header class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+    <div>
+      <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">İşlem Geçmişi</h1>
+      <p class="text-slate-500 mt-1">Nakit akışınızı ve işlem detaylarını tablo halinde inceleyin.</p>
+    </div>
+
+    <div class="flex items-center bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+      <button (click)="previousMonth()" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      </button>
+
+      <div class="w-40 text-center flex flex-col items-center justify-center">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Seçili Dönem</span>
+        <span class="text-sm font-black text-slate-700 leading-none">{{ displayMonthName }}</span>
+      </div>
+
+      <button (click)="nextMonth()" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+      </button>
+    </div>
+
+    <button routerLink="/add-transaction"
+            class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-md shadow-indigo-600/20 hover:-translate-y-0.5 hover:shadow-lg transition-all flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+      Yeni İşlem Ekle
+    </button>
+  </header>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group">
+      <div class="absolute right-0 top-0 w-16 h-16 bg-emerald-50 rounded-bl-3xl flex items-center justify-center text-emerald-500 transition-transform group-hover:scale-110"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></div>
+      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 relative z-10">Toplam Gelir (Nakit)</p>
+      <p class="text-3xl font-black text-emerald-600 relative z-10">
+        +{{ calculator.totalIncome() | currency:'TRY':'₺':'1.2-2' }}
+      </p>
+      <p class="text-xs text-slate-400 mt-2 relative z-10">Sadece bu ayki nakit girişleri.</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-indigo-50 to-white rounded-3xl p-6 shadow-sm border border-indigo-100 flex flex-col justify-center relative overflow-hidden group">
+      <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500 opacity-5 rounded-full blur-2xl transition-transform group-hover:scale-150"></div>
+      <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1 relative z-10">Gelir (Varlıklar Dahil)</p>
+      <p class="text-3xl font-black text-indigo-700 relative z-10">
+        +{{ (calculator.totalIncome() + calculator.totalAssetsValue()) | currency:'TRY':'₺':'1.2-2' }}
+      </p>
+      <p class="text-xs text-indigo-400 mt-2 relative z-10">Nakit + Altın/Döviz toplamı.</p>
+    </div>
+
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-center relative overflow-hidden group">
+      <div class="absolute right-0 top-0 w-16 h-16 bg-red-50 rounded-bl-3xl flex items-center justify-center text-red-500 transition-transform group-hover:scale-110"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 relative z-10">Toplam Borç (Gerçek)</p>
+      <p class="text-3xl font-black text-red-600 relative z-10">
+        -{{ calculator.totalExpenses() | currency:'TRY':'₺':'1.2-2' }}
+      </p>
+      <p class="text-xs text-slate-400 mt-2 relative z-10">Kartların tamamı dahil tüm borç.</p>
+    </div>
+
+    <div class="bg-rose-50/50 rounded-3xl p-6 shadow-sm border border-rose-100 flex flex-col justify-center relative overflow-hidden group">
+      <div class="absolute right-0 top-0 w-16 h-16 bg-rose-100 rounded-bl-3xl flex items-center justify-center text-rose-500 transition-transform group-hover:scale-110"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg></div>
+      <p class="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-1 relative z-10">Zorunlu Çıkış (Asgari)</p>
+      <p class="text-3xl font-black text-rose-600 relative z-10">
+        -{{ calculator.totalMinimumExpenses() | currency:'TRY':'₺':'1.2-2' }}
+      </p>
+      <p class="text-xs text-rose-400 mt-2 relative z-10">Sadece asgariler ödenirse çıkan tutar.</p>
+    </div>
+
+  </div>
+
+
+  <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+
+    <div class="flex border-b border-slate-100 bg-slate-50/80 p-3 gap-2">
+      <button (click)="setTab('all')" class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all" [ngClass]="activeTab() === 'all' ? 'bg-white text-slate-800 shadow-sm border border-slate-200' : 'text-slate-500 hover:bg-slate-200/50'">Tümü</button>
+      <button (click)="setTab('income')" class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all" [ngClass]="activeTab() === 'income' ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-200' : 'text-slate-500 hover:bg-slate-200/50'">Gelirler</button>
+      <button (click)="setTab('expense')" class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all" [ngClass]="activeTab() === 'expense' ? 'bg-rose-50 text-rose-700 shadow-sm border border-rose-200' : 'text-slate-500 hover:bg-slate-200/50'">Giderler</button>
+    </div>
+
+    <div class="overflow-x-auto">
+      @if (allTransactions().length === 0) {
+        <div class="text-center py-16"><p class="text-slate-400 font-medium">Bu filtreye uygun kayıt bulunamadı.</p></div>
+      } @else {
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-white text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-100">
+              <th class="p-4 font-bold pl-6">Tür</th>
+              <th class="p-4 font-bold">Tarih</th>
+              <th class="p-4 font-bold">İşlem Adı / Detay</th>
+              <th class="p-4 font-bold text-right">Tutar (₺)</th>
+              <th class="p-4 font-bold text-center">Durum</th>
+              <th class="p-4 font-bold text-right pr-6">Aksiyon</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm">
+            @for (tx of allTransactions(); track tx.id) {
+              <tr class="border-b border-slate-50 hover:bg-slate-50/80 transition-colors group" [class.opacity-60]="tx.type === 'expense' && tx.isPaid">
+
+                <td class="p-4 pl-6 w-16">
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm" [ngClass]="tx.type === 'income' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'">
+                    @if (tx.type === 'income') { <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> }
+                    @else { <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg> }
+                  </div>
+                </td>
+
+                <td class="p-4 text-slate-500 font-medium whitespace-nowrap">
+                  {{ tx.date | date:'dd MMM yyyy' }}
+                </td>
+
+                <td class="p-4">
+                  <p class="font-bold text-slate-800 text-base" [class.line-through]="tx.type === 'expense' && tx.isPaid">{{ tx.name }}</p>
+                  <div class="flex gap-2 mt-1">
+                    @if (tx.isRecurring) { <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md font-bold">Tekrarlayan</span> }
+                    @if (tx.isCreditCard) { <span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-md font-bold border border-indigo-100">Kredi Kartı</span> }
+                  </div>
+                </td>
+
+                <td class="p-4 text-right whitespace-nowrap">
+                  <p class="font-black text-base" [ngClass]="tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'" [class.line-through]="tx.type === 'expense' && tx.isPaid">
+                    {{ tx.type === 'income' ? '+' : '-' }}{{ tx.displayAmount | currency:'TRY':'₺':'1.2-2' }}
+                  </p>
+                  @if (tx.isCreditCard && tx.minimumPaymentAmount) {
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">ASGARİ: {{ tx.minimumPaymentAmount | currency:'TRY':'₺':'1.2-2' }}</p>
+                  }
+                </td>
+
+                <td class="p-4 text-center">
+                  @if (tx.type === 'income') {
+                    <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-emerald-100">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Tahsil Edildi
+                    </span>
+                  } @else {
+                    <button (click)="togglePaidStatus(tx.id, tx.type)"
+                            class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-all"
+                            [ngClass]="tx.isPaid ? 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200' : 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100'">
+                      @if (tx.isPaid) {
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Ödendi
+                      } @else {
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Bekliyor
+                      }
+                    </button>
+                  }
+                </td>
+
+                <td class="p-4 pr-6 text-right">
+                  <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button (click)="openEditModal(tx)" title="Düzenle" class="p-2 rounded-xl bg-indigo-50 text-indigo-500 hover:bg-indigo-100 transition-colors">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    </button>
+                    <button (click)="deleteTransaction(tx.id, tx.type)" title="Sil" class="p-2 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100 transition-colors">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                  </div>
+                </td>
+
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+
+  @if (editingTx()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in">
+      <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl border border-slate-100">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-extrabold text-slate-800">İşlemi Güncelle</h3>
+          <button (click)="closeEditModal()" class="text-slate-400 hover:text-slate-700 bg-slate-100 p-2 rounded-full"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+        </div>
+
+        <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="space-y-4">
+          <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">İşlem Adı</label><input type="text" formControlName="name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50"></div>
+          <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Tutar (₺)</label><input type="number" formControlName="amount" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50"></div>
+          <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Tarih</label><input type="date" formControlName="date" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50"></div>
+
+          @if (editingTx()?.type === 'expense') {
+            <label class="flex items-center gap-3 cursor-pointer p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <input type="checkbox" formControlName="isCreditCard" class="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500">
+              <span class="text-sm font-bold text-slate-700">Kredi Kartı</span>
+            </label>
+            @if (editForm.get('isCreditCard')?.value) {
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Asgari Tutar</label><input type="number" formControlName="minimumPaymentAmount" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50"></div>
+            }
+          }
+
+          <div class="pt-4 flex gap-3">
+            <button type="button" (click)="closeEditModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors">İptal</button>
+            <button type="submit" [disabled]="editForm.invalid" class="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 disabled:bg-indigo-300 transition-colors shadow-md shadow-indigo-200">Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
