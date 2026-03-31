@@ -4,6 +4,7 @@ import { TransactionFormComponent } from './features/transaction-form-component/
 import { AssetsComponent } from './features/assets-component/assets-component';
 import { TransactionComponent } from './features/transaction-component/transaction-component';
 import { ReportComponent } from './features/report-component/report-component';
+import { AiAdvisorComponent } from './features/ai-advisor/ai-advisor';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -12,5 +13,6 @@ export const routes: Routes = [
   { path: 'transactions', component: TransactionComponent },
   { path: 'assets', component: AssetsComponent },
   { path: 'report', component: ReportComponent }, // YENİ EKLENEN ROTA
-  { path: '**', redirectTo: '/dashboard' }
+  { path: 'ai-advisor', component: AiAdvisorComponent },
+  { path: '**', redirectTo: '/dashboard' },
 ];

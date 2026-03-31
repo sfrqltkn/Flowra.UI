@@ -11,6 +11,7 @@ import { FinanceStateService } from '../../core/services/finance-state.service';
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.scss',
 })
+
 export class DashboardComponent {
   calculator = inject(FinanceCalculatorService);
   state = inject(FinanceStateService); // EKLENDİ

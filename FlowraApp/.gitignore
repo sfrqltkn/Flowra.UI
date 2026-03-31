@@ -1,0 +1,18 @@
+# --- ANGULAR UYGULAMASI KURALLARI ---
+# Sadece Angular'ın derleme ve önbellek çıktılarını gizler.
+
+# Derlenmiş Çıktılar (Compiled output)
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Çeşitli Önbellekler (Miscellaneous)
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+__screenshots__/

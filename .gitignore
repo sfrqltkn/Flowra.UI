@@ -1,26 +1,17 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# --- FLOWRA KÖK DİZİN KURALLARI ---
+# Bu dosya tüm depoyu kapsar (İleride eklenecek backend klasörleri dahil)
 
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
-
-# Node
-/node_modules
+# Node (Tüm alt klasörlerdeki node_modules'leri engeller)
+**/node_modules/
 npm-debug.log
 yarn-error.log
 
-# IDEs and editors
+# IDE ve Editörler (Visual Studio, VS Code vb.)
 .idea/
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# Visual Studio Code
+.vs/
+*.sln.docstates
+*.suo
+*.user
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -29,16 +20,6 @@ yarn-error.log
 !.vscode/mcp.json
 .history/*
 
-# Miscellaneous
-/.angular/cache
-.sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
-testem.log
-/typings
-__screenshots__/
-
-# System files
+# İşletim Sistemi Dosyaları
 .DS_Store
 Thumbs.db
