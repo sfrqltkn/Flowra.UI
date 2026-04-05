@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:Flowra": "node dist/Flowra/server/server.mjs"
+    "serve:ssr:flowra-app": "node dist/FlowraApp/server/server.mjs"
   },
   "prettier": {
     "printWidth": 100,
@@ -41,7 +41,7 @@
     "@angular/cli": "^21.1.4",
     "@angular/compiler-cli": "^21.1.0",
     "@types/express": "^5.0.1",
-    "@types/node": "^20.17.19",
+    "@types/node": "^20.19.39",
     "autoprefixer": "^10.4.27",
     "cross-env": "^10.1.0",
     "jsdom": "^27.1.0",

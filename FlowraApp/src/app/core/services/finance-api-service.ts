@@ -2,6 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Income, Expense, Asset, CashRecord, Allowance } from '../models/finance.models';
+import { environment } from '../../../environments/environment';
+
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +11,7 @@ import { Income, Expense, Asset, CashRecord, Allowance } from '../models/finance
 export class FinanceApiService {
   private http = inject(HttpClient);
 
-  private apiUrl = 'https://localhost:7124/api';
+  private apiUrl = `${environment.apiUrl}`;
 
   // --- INCOMES ---
   getIncomes(): Observable<Income[]> { return this.http.get<Income[]>(`${this.apiUrl}/Incomes`); }
