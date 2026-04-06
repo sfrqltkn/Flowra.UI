@@ -3,6 +3,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FinanceStateService } from '../../core/services/finance-state.service';
 import { FinanceCalculatorService } from '../../core/services/finance-calculator.service';
+import { FinanceApiService } from '../../core/services/finance-api-service';
 import { Asset, CashRecord } from '../../core/models/finance.models';
 
 @Component({
@@ -13,6 +14,7 @@ import { Asset, CashRecord } from '../../core/models/finance.models';
 })
 export class AssetsComponent implements OnInit {
   private fb = inject(FormBuilder);
+  private financeApi = inject(FinanceApiService);
   state = inject(FinanceStateService);
   calculator = inject(FinanceCalculatorService);
 
@@ -27,6 +29,12 @@ export class AssetsComponent implements OnInit {
     { value: 'Other', label: 'Diğer' }
   ];
 
+  // --- API Verileri ---
+  goldPrices: any[] = [];
+  currencyPrices: any[] = [];
+  silverPrice: any = null;
+  selectedAssetType: string = 'Gold';
+
   editingCashRecordId: number | null = null;
   editCashForm!: FormGroup;
 
@@ -38,14 +46,12 @@ export class AssetsComponent implements OnInit {
       const month = this.state.selectedMonth();
       this.loadBalanceForMonth(month);
 
-      // YENİ: Global ay değiştiğinde, varlık ekleme formundaki ayı da otomatik değiştir
       if (this.assetForm) {
         this.assetForm.patchValue({ monthYear: month }, { emitEvent: false });
       }
     });
   }
 
-  // --- ZAMAN YOLCULUĞU METOTLARI ---
   previousMonth() {
     const current = new Date(this.state.selectedMonth() + '-01');
     current.setMonth(current.getMonth() - 1);
@@ -66,10 +72,9 @@ export class AssetsComponent implements OnInit {
   ngOnInit() {
     this.cashForm = this.fb.group({ balance: [null, Validators.required] });
 
-    // YENİ: monthYear alanı forma eklendi
     this.assetForm = this.fb.group({
       monthYear: [this.state.selectedMonth(), Validators.required],
-      name: ['', [Validators.required, Validators.minLength(2)]],
+      name: ['', [Validators.required]],
       type: ['Gold', Validators.required],
       amount: [null, [Validators.required, Validators.min(0.01)]],
       estimatedUnitValue: [null, [Validators.required, Validators.min(0.01)]]
@@ -77,17 +82,54 @@ export class AssetsComponent implements OnInit {
 
     this.editCashForm = this.fb.group({ balance: [null, Validators.required] });
 
-    // YENİ: monthYear alanı düzenleme formuna eklendi
     this.editAssetForm = this.fb.group({
       monthYear: ['', Validators.required],
-      name: ['', [Validators.required, Validators.minLength(2)]],
+      name: ['', [Validators.required]],
       type: ['Gold', Validators.required],
       amount: [null, [Validators.required, Validators.min(0.01)]],
       estimatedUnitValue: [null, [Validators.required, Validators.min(0.01)]]
     });
+
+    this.setupAssetFormListeners();
+    this.loadGoldPrices(); // Sayfa açılışında default Altın olduğu için yükle
   }
 
-  // --- KASA İŞLEMLERİ ---
+  // --- YENİ: Form Dinleyicileri ---
+  setupAssetFormListeners() {
+    this.assetForm.get('type')?.valueChanges.subscribe(type => {
+      this.selectedAssetType = type;
+      this.assetForm.patchValue({ name: '', estimatedUnitValue: null }, { emitEvent: false });
+
+      if (type === 'Gold' && this.goldPrices.length === 0) this.loadGoldPrices();
+      if (type === 'Currency' && this.currencyPrices.length === 0) this.loadCurrencyPrices();
+      if (type === 'Silver') {
+        if (!this.silverPrice) {
+          this.financeApi.getSilverPrice().subscribe(data => {
+            this.silverPrice = data;
+            this.assetForm.patchValue({ name: 'Gümüş', estimatedUnitValue: data.price });
+          });
+        } else {
+          this.assetForm.patchValue({ name: 'Gümüş', estimatedUnitValue: this.silverPrice.price });
+        }
+      }
+    });
+
+    this.assetForm.get('name')?.valueChanges.subscribe(name => {
+      if (!name) return;
+      let price = 0;
+      if (this.selectedAssetType === 'Gold') {
+        price = this.goldPrices.find(x => x.name === name)?.price || 0;
+      } else if (this.selectedAssetType === 'Currency') {
+        price = this.currencyPrices.find(x => x.name === name)?.price || 0;
+      }
+      if (price > 0) this.assetForm.patchValue({ estimatedUnitValue: price });
+    });
+  }
+
+  loadGoldPrices() { this.financeApi.getGoldPrices().subscribe(data => this.goldPrices = data); }
+  loadCurrencyPrices() { this.financeApi.getCurrencies().subscribe(data => this.currencyPrices = data); }
+
+  // --- KASA İŞLEMLERİ (DOKUNULMADI) ---
   loadBalanceForMonth(monthYear: string) {
     if (!this.cashForm) return;
     const record = this.state.cashRecords().find(r => r.monthYear === monthYear);
@@ -96,8 +138,7 @@ export class AssetsComponent implements OnInit {
 
   updateCash() {
     if (this.cashForm.valid) {
-      const balance = this.cashForm.value.balance;
-      this.state.updateCashForMonth(this.state.selectedMonth(), balance);
+      this.state.updateCashForMonth(this.state.selectedMonth(), this.cashForm.value.balance);
       this.showCashSuccess = true;
       setTimeout(() => this.showCashSuccess = false, 2500);
     }
@@ -127,12 +168,12 @@ export class AssetsComponent implements OnInit {
   // --- VARLIK İŞLEMLERİ ---
   addAsset() {
     if (this.assetForm.valid) {
-      // Artık formu gönderirken state'i değil, formun içindeki ayı baz alıyoruz
       this.state.addAsset(this.assetForm.value);
       this.assetForm.reset({
         type: 'Gold',
-        monthYear: this.state.selectedMonth() // Formu temizlerken mevcut ayı geri koy
+        monthYear: this.state.selectedMonth()
       });
+      this.selectedAssetType = 'Gold'; // Reset sonrası UI'ı da altına çek
     }
   }
 
@@ -143,7 +184,6 @@ export class AssetsComponent implements OnInit {
 
   openEditAssetModal(asset: Asset) {
     this.editingAsset = asset;
-    // YENİ: Düzenleme formuna tıklanan varlığın ayını basıyoruz
     this.editAssetForm.patchValue({
       monthYear: asset.monthYear,
       name: asset.name,
@@ -157,7 +197,6 @@ export class AssetsComponent implements OnInit {
 
   saveAssetEdit() {
     if (this.editingAsset && this.editingAsset.id && this.editAssetForm.valid) {
-      // Artık eski ayı korumuyoruz, kullanıcının değiştirdiği yeni ayı (form value) gönderiyoruz
       this.state.updateAsset(this.editingAsset.id, this.editAssetForm.value);
       this.closeEditAssetModal();
     }

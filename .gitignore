@@ -23,3 +23,12 @@ yarn-error.log
 # İşletim Sistemi Dosyaları
 .DS_Store
 Thumbs.db
+
+# Kimlik ve Özel Veriler
+.env
+.env.*
+user-secrets.json
+
+# .NET özel
+bin/
+obj/

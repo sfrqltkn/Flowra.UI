@@ -4,14 +4,23 @@ import { Observable } from 'rxjs';
 import { Income, Expense, Asset, CashRecord, Allowance } from '../models/finance.models';
 import { environment } from '../../../environments/environment';
 
-
 @Injectable({
   providedIn: 'root',
 })
 export class FinanceApiService {
   private http = inject(HttpClient);
-
   private apiUrl = `${environment.apiUrl}`;
+
+  // --- ASSETS (VARLIKLAR) ---
+  getAssets(): Observable<Asset[]> { return this.http.get<Asset[]>(`${this.apiUrl}/Assets`); }
+  createAsset(data: Asset): Observable<any> { return this.http.post(`${this.apiUrl}/Assets`, data); }
+  updateAsset(id: number, data: Asset): Observable<any> { return this.http.put(`${this.apiUrl}/Assets/${id}`, { ...data, id }); }
+  deleteAsset(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Assets/${id}`); }
+
+  // --- CANLI PIYASA VERILERI (YENI) ---
+  getGoldPrices(): Observable<any[]> { return this.http.get<any[]>(`${this.apiUrl}/FinanceData/gold`); }
+  getCurrencies(): Observable<any[]> { return this.http.get<any[]>(`${this.apiUrl}/FinanceData/currencies`); }
+  getSilverPrice(): Observable<any> { return this.http.get<any>(`${this.apiUrl}/FinanceData/silver`); }
 
   // --- INCOMES ---
   getIncomes(): Observable<Income[]> { return this.http.get<Income[]>(`${this.apiUrl}/Incomes`); }
@@ -24,12 +33,6 @@ export class FinanceApiService {
   createExpense(data: Expense): Observable<any> { return this.http.post(`${this.apiUrl}/Expenses`, data); }
   updateExpense(id: number, data: Expense): Observable<any> { return this.http.put(`${this.apiUrl}/Expenses/${id}`, data); }
   deleteExpense(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Expenses/${id}`); }
-
-  // --- ASSETS ---
-  getAssets(): Observable<Asset[]> { return this.http.get<Asset[]>(`${this.apiUrl}/Assets`); }
-  createAsset(data: Asset): Observable<any> { return this.http.post(`${this.apiUrl}/Assets`, data); }
-  updateAsset(id: number, data: Asset): Observable<any> { return this.http.put(`${this.apiUrl}/Assets/${id}`, data); }
-  deleteAsset(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Assets/${id}`); }
 
   // --- CASH RECORDS ---
   getCashRecords(): Observable<CashRecord[]> { return this.http.get<CashRecord[]>(`${this.apiUrl}/CashRecords`); }
