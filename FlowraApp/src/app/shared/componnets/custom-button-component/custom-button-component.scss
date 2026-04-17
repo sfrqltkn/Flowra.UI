@@ -1,0 +1,31 @@
+.btn-vivid {
+  transition: all 0.3s ease;
+  font-weight: 600;
+  padding: 12px 24px;
+
+  &.btn-primary {
+    background-color: var(--primary) !important;
+    color: white;
+  }
+
+  &.btn-secondary {
+    background-color: var(--secondary) !important;
+    color: white;
+  }
+
+  &.rounded-pill {
+    border-radius: 50rem !important;
+  }
+
+  &:hover {
+    transform: translateY(-3px); // Hafifçe yüksel
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.15) !important; // Gölgeyi artır
+  }
+
+  &:disabled {
+    background-color: #CCCCCC !important;
+    opacity: 0.7;
+    transform: none;
+    box-shadow: none;
+  }
+}

@@ -1,0 +1,60 @@
+<app-auth-layout-component
+  title="Hoş Geldiniz"
+  subtitle="Hesabınıza giriş yaparak deneyiminize devam edebilirsiniz."
+  formTitle="Hesabınıza Giriş Yapın">
+
+  <div *ngIf="alertMessage"
+       class="mb-6 p-4 rounded-xl border text-sm flex items-start gap-3 transition-all duration-500 animate-in fade-in slide-in-from-top-4"
+       [ngClass]="{
+         'bg-indigo-50 border-indigo-200 text-indigo-800 dark:bg-indigo-900/30 dark:border-indigo-800/50 dark:text-indigo-300': alertMessage.type === 'info',
+         'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-900/30 dark:border-emerald-800/50 dark:text-emerald-300': alertMessage.type === 'success'
+       }">
+    <i class="mt-0.5 text-lg fas"
+       [ngClass]="{
+         'fa-info-circle text-indigo-600 dark:text-indigo-400': alertMessage.type === 'info',
+         'fa-check-circle text-emerald-600 dark:text-emerald-400': alertMessage.type === 'success'
+       }"></i>
+    <span class="font-medium leading-relaxed" [innerHTML]="alertMessage.text"></span>
+  </div>
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+    <app-base-input-component
+      label="E-posta veya Kullanıcı Adı"
+      type="text"
+      [control]="emailOrUsernameControl"
+      placeholder="ornek@mail.com veya kullanici_adi"
+      icon="fas fa-user">
+    </app-base-input-component>
+
+    <div class="relative w-full">
+      <app-base-input-component
+        label="Şifre"
+        type="password"
+        [control]="passwordControl"
+        placeholder="********"
+        icon="fas fa-lock">
+      </app-base-input-component>
+
+      <a routerLink="/auth/forgot-password" class="absolute right-0 top-0 text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 transition-colors z-10">
+        Şifremi Unuttum?
+      </a>
+    </div>
+
+    <app-custom-button-component
+      type="submit"
+      variant="primary"
+      [disabled]="loginForm.invalid"
+      [isLoading]="authService.isLoading()">
+      Giriş Yap
+    </app-custom-button-component>
+
+    <p class="text-center text-sm text-slate-500 dark:text-slate-400 mt-8">
+      Hesabınız yok mu?
+      <a routerLink="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 transition-colors">
+        Hemen Kayıt Ol
+      </a>
+    </p>
+
+  </form>
+</app-auth-layout-component>

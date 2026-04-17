@@ -1,0 +1,112 @@
+<div class="admin-layout" [class.sidebar-collapsed]="isSidebarCollapsed()">
+
+  @if (isMobile() && !isSidebarCollapsed()) {
+    <div class="sidebar-overlay" (click)="toggleSidebar()"></div>
+  }
+
+  <aside class="sidebar" [class.mobile-open]="!isSidebarCollapsed()">
+
+    <div class="sidebar-header">
+      <div class="brand">
+        <span class="brand-icon">🌿</span> @if (!isSidebarCollapsed() || isMobile()) {
+          <h1 class="brand-text">Flowra</h1>
+        }
+      </div>
+      @if (isMobile()) {
+        <button class="btn-icon" (click)="toggleSidebar()">✕</button>
+      }
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul class="nav-list">
+
+        <li class="nav-item">
+          <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
+            <span class="icon">📊</span>
+            @if (!isSidebarCollapsed() || isMobile()) { <span class="text">Dashboard</span> }
+          </a>
+        </li>
+
+        <li class="nav-title">
+          @if (!isSidebarCollapsed() || isMobile()) { <span>YÖNETİM PANELİ</span> }
+          @else { <span>•••</span> }
+        </li>
+
+        @if (hasRole('SuperAdmin') || hasRole('Admin')) {
+          <li class="nav-item">
+            <a routerLink="/admin/users" routerLinkActive="active" class="nav-link">
+              <span class="icon">👥</span>
+              @if (!isSidebarCollapsed() || isMobile()) { <span class="text">Kullanıcılar</span> }
+            </a>
+          </li>
+        }
+
+        <li class="nav-item">
+          <a routerLink="/admin/settings" routerLinkActive="active" class="nav-link">
+            <span class="icon">⚙️</span>
+            @if (!isSidebarCollapsed() || isMobile()) { <span class="text">Sistem Ayarları</span> }
+          </a>
+        </li>
+
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-mini-profile">
+        <div class="avatar">{{ currentUser()?.fullName?.charAt(0) | uppercase }}</div>
+        @if (!isSidebarCollapsed() || isMobile()) {
+          <div class="details">
+            <span class="name">{{ currentUser()?.fullName }}</span>
+            <span class="role">{{ currentUser()?.roles?.[0] || 'Kullanıcı' }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+
+    <header class="topbar">
+
+      <div class="topbar-left">
+        <button class="btn-toggle-sidebar" (click)="toggleSidebar()" aria-label="Menüyü Aç/Kapat">
+          ☰
+        </button>
+        <h2 class="page-title">Yönetim Paneli</h2>
+      </div>
+
+      <div class="topbar-right">
+        <div class="notifications">
+          <button class="btn-icon">
+            🔔<span class="badge">3</span>
+          </button>
+        </div>
+
+        <div class="profile-dropdown">
+          <button class="profile-toggle" (click)="toggleProfileMenu()">
+            <span class="greeting">Merhaba, {{ currentUser()?.fullName?.split(' ')?.[0] }}</span>
+            <span class="caret">▼</span>
+          </button>
+
+          @if (isProfileMenuOpen()) {
+            <div class="dropdown-menu">
+              <a routerLink="/admin/profile" class="dropdown-item" (click)="closeProfileMenu()">
+                <span>👤</span> Profilim
+              </a>
+              <div class="divider"></div>
+              <button class="dropdown-item text-danger" (click)="logout()">
+                <span>🚪</span> Güvenli Çıkış
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </header>
+
+    <main class="content-area">
+      <div class="content-container">
+        <!-- <router-outlet></router-outlet> -->
+      </div>
+    </main>
+  </div>
+</div>

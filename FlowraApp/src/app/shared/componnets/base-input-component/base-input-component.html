@@ -1,0 +1,36 @@
+<div class="mb-4 relative">
+  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+    {{ label }}
+  </label>
+
+  <div class="relative">
+    <i *ngIf="icon" [class]="icon" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm z-10"></i>
+
+    <input
+      [type]="currentType"
+      [formControl]="control"
+      [placeholder]="placeholder"
+      class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm relative z-0"
+      [ngClass]="{
+        'pl-11': icon,
+        'pr-11': type === 'password',
+        'border-red-400 focus:border-red-500 focus:ring-red-500 dark:border-red-500/50': isInvalid
+      }">
+
+    <button
+      *ngIf="type === 'password'"
+      type="button"
+      (click)="togglePassword()"
+      tabindex="-1"
+      class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 transition-colors duration-200 z-10 focus:outline-none"
+      title="Şifreyi Göster/Gizle">
+      <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+    </button>
+  </div>
+
+  <div class="h-5 mt-1.5 px-1">
+    <p *ngIf="errorMessage" class="text-xs text-red-500 animate-pulse transition-opacity">
+      {{ errorMessage }}
+    </p>
+  </div>
+</div>

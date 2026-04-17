@@ -1,0 +1,83 @@
+<app-auth-layout-component
+  title="Geleceğe Katılın"
+  subtitle="Flowra ekosistemine dahil olarak verilerinizi ve süreçlerinizi tek bir merkezden yönetin."
+  formTitle="Hesap Oluştur" maxWidth="xl">
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+      <app-base-input-component
+        label="Adınız"
+        [control]="getControl('firstName')"
+        placeholder="Adınız"
+        icon="fas fa-id-card">
+      </app-base-input-component>
+
+      <app-base-input-component
+        label="Soyadınız"
+        [control]="getControl('lastName')"
+        placeholder="Soyadınız"
+        icon="fas fa-id-card">
+      </app-base-input-component>
+    </div>
+
+    <app-base-input-component
+      label="Kullanıcı Adı"
+      [control]="getControl('userName')"
+      placeholder="ornek_kullanici"
+      icon="fas fa-user-tag">
+    </app-base-input-component>
+
+    <app-base-input-component
+      label="E-posta Adresi"
+      type="email"
+      [control]="getControl('email')"
+      placeholder="ornek@mail.com"
+      icon="fas fa-envelope">
+    </app-base-input-component>
+
+    <app-base-input-component
+      label="Telefon Numarası (Opsiyonel)"
+      type="tel"
+      [control]="getControl('phoneNumber')"
+      placeholder="+90 555 123 45 67"
+      icon="fas fa-phone">
+    </app-base-input-component>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+      <app-base-input-component
+        label="Şifre"
+        type="password"
+        [control]="getControl('password')"
+        placeholder="********"
+        icon="fas fa-lock">
+      </app-base-input-component>
+
+      <app-base-input-component
+        label="Şifre Tekrar"
+        type="password"
+        [control]="getControl('confirmPassword')"
+        placeholder="********"
+        icon="fas fa-check-double">
+      </app-base-input-component>
+    </div>
+
+    <div class="mt-4">
+      <app-custom-button-component
+        type="submit"
+        variant="primary"
+        [disabled]="registerForm.invalid"
+        [isLoading]="authService.isLoading()">
+        Kayıt Ol
+      </app-custom-button-component>
+    </div>
+
+    <p class="text-center text-sm text-slate-500 dark:text-slate-400 mt-8">
+      Zaten bir hesabınız var mı?
+      <a routerLink="/auth/login" class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 transition-colors">
+        Giriş Yap
+      </a>
+    </p>
+
+  </form>
+</app-auth-layout-component>

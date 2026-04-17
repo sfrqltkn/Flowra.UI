@@ -1,0 +1,24 @@
+.form-control {
+  background-color: var(--bg-soft);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  transition: all 0.3s ease;
+
+  &.rounded-pill {
+    border-radius: 50rem !important;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.2); // Primary rengin şeffaf gölgesi
+    border-color: var(--primary);
+  }
+}
+
+.dark .form-control {
+  background-color: #2D3436; // Dark Mode için daha koyu gri
+  color: white;
+}
+
+.input-icon {
+  z-index: 5;
+}
