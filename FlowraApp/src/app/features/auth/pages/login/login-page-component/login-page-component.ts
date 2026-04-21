@@ -1,5 +1,4 @@
 import { CommonModule } from "@angular/common";
-// DİKKAT: ChangeDetectorRef eklendi
 import { Component, inject, OnInit, OnDestroy, NgZone, ChangeDetectorRef } from "@angular/core";
 import { FormBuilder, FormGroup, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router, RouterModule, ActivatedRoute } from "@angular/router";
@@ -31,11 +30,17 @@ export class LoginPage implements OnInit, OnDestroy {
   loginForm!: FormGroup;
   isDarkMode$!: Observable<boolean>;
 
-  alertMessage: { type: 'info' | 'success', text: string } | null = null;
+  // UYARI TİPLERİ GENİŞLETİLDİ (warning ve error eklendi)
+  alertMessage: { type: 'info' | 'success' | 'warning' | 'error', text: string } | null = null;
+
+  // YENİDEN GÖNDERME AKIŞI İÇİN STATE'LER
+  unconfirmedEmail: string | null = null;
+  isResending = false;
+
   private broadcastChannel!: BroadcastChannel;
 
   private ngZone = inject(NgZone);
-  private cdr = inject(ChangeDetectorRef); // EKLENDİ: Ekranı zorla güncellemek için
+  private cdr = inject(ChangeDetectorRef);
 
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);
@@ -68,7 +73,7 @@ export class LoginPage implements OnInit, OnDestroy {
       }]
     });
 
-    this.checkRegistrationRedirect();
+    this.checkIncomingParameters();
     this.setupBroadcastListener();
   }
 
@@ -86,12 +91,23 @@ export class LoginPage implements OnInit, OnDestroy {
     return this.loginForm.get('password') as FormControl;
   }
 
-  private checkRegistrationRedirect(): void {
+  private checkIncomingParameters(): void {
     this.route.queryParams.subscribe(params => {
       if (params['checkEmail'] === 'true') {
         this.alertMessage = {
           type: 'info',
           text: 'Kayıt başarılı! Lütfen <b>e-posta adresinize</b> gönderilen bağlantıya tıklayarak hesabınızı doğrulayın.'
+        };
+      } else if (params['resetSent'] === 'true') {
+        this.alertMessage = {
+          type: 'info',
+          text: 'Şifre sıfırlama yönergeleri e-posta adresinize gönderildi. Lütfen <b>gelen kutunuzu</b> kontrol edin.'
+        };
+      }
+      else if (params['confirmationSent'] === 'true') {
+        this.alertMessage = {
+          type: 'success',
+          text: 'Yeni doğrulama bağlantısı e-posta adresinize gönderildi. Lütfen gelen kutunuzu (ve spam klasörünü) kontrol ediniz.'
         };
       }
     });
@@ -102,27 +118,62 @@ export class LoginPage implements OnInit, OnDestroy {
 
     this.broadcastChannel.onmessage = (event) => {
       this.ngZone.run(() => {
-        if (event.data.type === 'EMAIL_VERIFIED') {
+        let messageUpdated = false;
 
+        if (event.data.type === 'EMAIL_VERIFIED') {
+          this.unconfirmedEmail = null; // Doğrulandığı an butonu gizle
           this.alertMessage = {
             type: 'success',
             text: 'Doğrulama Başarılı! Şifrenizi girerek oturum açabilirsiniz.'
           };
-          this.cdr.detectChanges();
+          messageUpdated = true;
+        }
+        else if (event.data.type === 'PASSWORD_RESET_SUCCESS') {
+          this.alertMessage = {
+            type: 'success',
+            text: 'Şifreniz başarıyla değiştirildi! Lütfen yeni şifreniz ile giriş yapınız.'
+          };
+          messageUpdated = true;
+        }
 
-          // --- YENİ EKLENEN KISIM: URL'İ SESSİZCE TEMİZLE ---
-          // Kullanıcı F5 attığında eski 'checkEmail=true' durumuna dönmemesi için
-          // URL'den bu parametreyi sayfa yenilenmeden siliyoruz.
+        if (messageUpdated) {
+          this.cdr.detectChanges();
+          // URL parametrelerini sessizce temizle
           this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { checkEmail: null }, // Parametreyi yok et
-            queryParamsHandling: 'merge',      // Diğer olası parametreleri koru (returnUrl vb.)
-            replaceUrl: true                   // Tarayıcı geçmişine yeni kayıt atma (Geri tuşunu bozmamak için)
+            queryParams: { checkEmail: null, resetSent: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true
           });
-
         }
       });
     };
+  }
+
+  // --- YENİ: E-POSTA TEKRAR GÖNDERME METODU ---
+  resendConfirmation() {
+    if (!this.unconfirmedEmail) return;
+
+    this.isResending = true;
+    this.authService.resendConfirmationEmail(this.unconfirmedEmail).subscribe({
+      next: () => {
+        this.alertMessage = {
+          type: 'success',
+          text: `Yeni doğrulama bağlantısı <b>${this.unconfirmedEmail}</b> adresine gönderildi. Lütfen e-postanızı kontrol edin.`
+        };
+        this.unconfirmedEmail = null; // Başarılı olunca butonu kaldır
+        this.isResending = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: ApiError) => {
+        this.alertMessage = {
+          type: 'error',
+          text: err.detail || 'Doğrulama bağlantısı gönderilirken bir hata oluştu.'
+        };
+        this.isResending = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   onSubmit() {
@@ -130,6 +181,10 @@ export class LoginPage implements OnInit, OnDestroy {
       this.loginForm.markAllAsTouched();
       return;
     }
+
+    // Yeni denemede eski hataları temizle
+    this.alertMessage = null;
+    this.unconfirmedEmail = null;
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
@@ -143,7 +198,17 @@ export class LoginPage implements OnInit, OnDestroy {
         }
       },
       error: (err: ApiError) => {
-        if (err.errors) {
+        // 1. DURUM: Doğrulanmamış E-Posta (401 Unauthorized)
+        if (err.status === 401 && err.detail?.toLowerCase().includes('doğrulanmamış')) {
+          this.unconfirmedEmail = this.loginForm.value.emailOrUsername;
+          this.alertMessage = {
+            type: 'warning',
+            text: 'Hesabınız henüz doğrulanmamış. Güvenliğiniz için giriş yapmadan önce e-posta adresinizi doğrulamanız gerekmektedir.'
+          };
+          this.cdr.detectChanges();
+        }
+        // 2. DURUM: Backend Validasyon Hataları (400 Bad Request)
+        else if (err.errors) {
           Object.keys(err.errors).forEach(key => {
             const formKey = key.charAt(0).toLowerCase() + key.slice(1);
             const control = this.loginForm.get(formKey);
@@ -151,7 +216,10 @@ export class LoginPage implements OnInit, OnDestroy {
               control.setErrors({ serverError: err.errors![key][0] });
             }
           });
-        } else {
+        }
+        // 3. DURUM: Hatalı Şifre veya Diğer (Genel Hatalar)
+        else {
+          this.alertMessage = { type: 'error', text: err.detail || 'Kullanıcı adı veya şifre hatalı.' };
           this.passwordControl.reset();
         }
       }

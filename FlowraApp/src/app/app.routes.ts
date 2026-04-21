@@ -45,6 +45,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/auth/pages/forgot-password-component/forgot-password-component').then(c => c.ForgotPasswordComponent)
       },
       {
+        path: 'reset-password',
+        loadComponent: () => import('./features/auth/pages/reset-password-component/reset-password-component').then(c => c.ResetPasswordComponent)
+      },
+      {
+        path: 'resend-confirmation',
+        loadComponent: () => import('./features/auth/pages/resend-confirmation-component/resend-confirmation-component').then(c => c.ResendConfirmationComponent)
+      },
+      {
         path: '',
         redirectTo: 'login',
         pathMatch: 'full'

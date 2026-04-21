@@ -39,3 +39,10 @@ export interface UserState {
   email: string;
   roles: string[];
 }
+
+export interface ResetPasswordRequest {
+  userId: number;
+  resetToken: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}

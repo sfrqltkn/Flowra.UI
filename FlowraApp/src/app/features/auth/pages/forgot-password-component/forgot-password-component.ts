@@ -6,18 +6,17 @@ import { AuthValidators } from '../../../../shared/validators/auth-validators/au
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { BaseInputComponent } from '../../../../shared/componnets/base-input-component/base-input-component';
 import { AuthLayoutComponent } from '../../../../shared/componnets/auth-layout/auth-layout-component';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-forgot-password-component',
-  imports: [CustomButtonComponent,BaseInputComponent,AuthLayoutComponent,ReactiveFormsModule],
+  standalone: true,
+  imports: [CustomButtonComponent, BaseInputComponent, AuthLayoutComponent, ReactiveFormsModule, RouterModule],
   templateUrl: './forgot-password-component.html',
   styleUrl: './forgot-password-component.scss',
 })
 export class ForgotPasswordComponent implements OnInit {
   forgotPasswordForm!: FormGroup;
-  isSubmitted = false;
-  submittedEmail = '';
 
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);
@@ -51,16 +50,14 @@ export class ForgotPasswordComponent implements OnInit {
 
     this.authService.forgotPassword(emailValue).subscribe({
       next: () => {
-        this.isSubmitted = true;
-        this.submittedEmail = emailValue;
+        // BAŞARILI: Yönlendir ve Login ekranına sinyal parametresini gönder
+        this.router.navigate(['/auth/login'], { queryParams: { resetSent: 'true' } });
       },
       error: (err: ApiError) => {
         if (err.errors) {
           Object.keys(err.errors).forEach(key => {
-            // Backend'den 'Email' gelirse, frontend formundaki 'email' kontrolüyle eşleştir
             const formKey = key.charAt(0).toLowerCase() + key.slice(1);
             const control = this.forgotPasswordForm.get(formKey);
-
             if (control) {
               control.setErrors({ serverError: err.errors![key][0] });
             }

@@ -3,7 +3,7 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { finalize, Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { AuthResultDto, LoginRequest, RegisterRequest, UserState } from '../../models/auth.model';
+import { AuthResultDto, LoginRequest, ResetPasswordRequest, UserState } from '../../models/auth.model';
 import { ApiResponse } from '../../models/api-response.model';
 import { IS_INITIAL_AUTH_CHECK } from '../../tokens/http-context.tokens';
 
@@ -119,6 +119,15 @@ export class AuthService {
   forgotPassword(email: string): Observable<ApiResponse<any>> {
     this._isLoading.set(true);
     return this.http.post<ApiResponse<any>>(`${this.authUrl}/forgot-password`, { email }).pipe(
+      finalize(() => this._isLoading.set(false))
+    );
+  }
+
+
+  // POST: api/auth/reset-password
+  resetPassword(data: ResetPasswordRequest): Observable<ApiResponse<any>> {
+    this._isLoading.set(true);
+    return this.http.post<ApiResponse<any>>(`${this.authUrl}/reset-password`, data).pipe(
       finalize(() => this._isLoading.set(false))
     );
   }

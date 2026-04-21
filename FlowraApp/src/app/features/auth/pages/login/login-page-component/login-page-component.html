@@ -4,17 +4,37 @@
   formTitle="Hesabınıza Giriş Yapın">
 
   <div *ngIf="alertMessage"
-       class="mb-6 p-4 rounded-xl border text-sm flex items-start gap-3 transition-all duration-500 animate-in fade-in slide-in-from-top-4"
+       class="mb-6 p-4 rounded-xl border text-sm flex items-start gap-3 transition-all duration-500 animate-in fade-in slide-in-from-top-4 shadow-sm"
        [ngClass]="{
          'bg-indigo-50 border-indigo-200 text-indigo-800 dark:bg-indigo-900/30 dark:border-indigo-800/50 dark:text-indigo-300': alertMessage.type === 'info',
-         'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-900/30 dark:border-emerald-800/50 dark:text-emerald-300': alertMessage.type === 'success'
+         'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-900/30 dark:border-emerald-800/50 dark:text-emerald-300': alertMessage.type === 'success',
+         'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-800/50 dark:text-amber-300': alertMessage.type === 'warning',
+         'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800/50 dark:text-red-300': alertMessage.type === 'error'
        }">
+
     <i class="mt-0.5 text-lg fas"
        [ngClass]="{
          'fa-info-circle text-indigo-600 dark:text-indigo-400': alertMessage.type === 'info',
-         'fa-check-circle text-emerald-600 dark:text-emerald-400': alertMessage.type === 'success'
+         'fa-check-circle text-emerald-600 dark:text-emerald-400': alertMessage.type === 'success',
+         'fa-exclamation-triangle text-amber-600 dark:text-amber-400': alertMessage.type === 'warning',
+         'fa-times-circle text-red-600 dark:text-red-400': alertMessage.type === 'error'
        }"></i>
-    <span class="font-medium leading-relaxed" [innerHTML]="alertMessage.text"></span>
+
+    <div class="flex-1">
+      <span class="font-medium leading-relaxed" [innerHTML]="alertMessage.text"></span>
+
+      <div *ngIf="unconfirmedEmail" class="mt-4">
+        <button
+          type="button"
+          [disabled]="isResending"
+          (click)="resendConfirmation()"
+          class="text-xs font-bold px-4 py-2 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/50 dark:hover:bg-amber-800/60 text-amber-900 dark:text-amber-100 rounded-lg transition-colors border border-amber-200 dark:border-amber-700 flex items-center gap-2 outline-none focus:ring-2 focus:ring-amber-500">
+          <i class="fas" [ngClass]="isResending ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
+          Yeni Doğrulama Bağlantısı Gönder
+        </button>
+      </div>
+
+    </div>
   </div>
 
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
