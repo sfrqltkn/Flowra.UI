@@ -12,18 +12,14 @@
 
 import { Routes } from '@angular/router';
 import { authGuard, noAuthGuard } from './core/guards/auth-guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
+  // 1. ANA YÖNLENDİRME
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
-  // Ana Dizin -> Boş gelirse otomatik Dashboard'a at
+  // 2. KİMLİK DOĞRULAMA (Sadece Giriş Yapmamış Kullanıcılar)
   {
-    path: '',
-    redirectTo: 'dashboard',
-    pathMatch: 'full'
-  },
-
-  // === AUTHENTICATION MODÜLÜ (Giriş Yapanlar Göremez) ===
- {
     path: 'auth',
     canActivate: [noAuthGuard],
     children: [
@@ -41,7 +37,6 @@ export const routes: Routes = [
       },
       {
         path: 'forgot-password',
-        // Not: Dosya yolunu kendi klasör yapına göre (import edilen yere göre) teyit et.
         loadComponent: () => import('./features/auth/pages/forgot-password-component/forgot-password-component').then(c => c.ForgotPasswordComponent)
       },
       {
@@ -59,23 +54,41 @@ export const routes: Routes = [
       }
     ]
   },
+
+  // 3. ADMİN PANELİ (Sadece Giriş Yapmış ve Admin Rolü Olanlar)
+  {
+    path: 'admin',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () => import('./shared/componnets/admin-layout/admin-layout-component/admin-layout-component').then(c => c.AdminLayoutComponent),
+    children: [
+      {
+        path: '',
+        redirectTo: 'overview',
+        pathMatch: 'full'
+      },
+      {
+        path: 'overview',
+        loadComponent: () => import('./features/admin/overview/over-view-component/over-view-component').then(c => c.OverViewComponent)
+      }
+      // Buraya admin menü alt sayfalarını ekleyebilirsin (Kullanıcılar, Ayarlar vs.)
+    ]
+  },
+
+  // 4. STANDART KULLANICI SAYFALARI (Sadece Giriş Yapmış Kullanıcılar)
   {
     path: 'dashboard',
     canActivate: [authGuard],
     loadComponent: () => import('./features/dashboard/dashboard-component').then(c => c.DashboardComponent)
   },
   {
-    path: 'assets', // Örnek Deep Link rotası
+    path: 'assets',
     canActivate: [authGuard],
     loadComponent: () => import('./features/assets-component/assets-component').then(c => c.AssetsComponent)
   },
 
-  // 4. 404 NOT FOUND YÖNETİMİ
-  // Tüm geçersiz linkler buraya düşer. Dashboard'a zorlamak yerine 404 gösterilir.
+  // 5. 404 NOT FOUND YÖNETİMİ
   {
     path: '**',
-    // loadComponent: () => import('./core/pages/not-found/not-found.component').then(c => c.NotFoundComponent)
-    // Eğer şimdilik 404 sayfan yoksa, geçici olarak dashboard'a atabilirsin:
     redirectTo: 'dashboard'
   }
 ];

@@ -23,22 +23,24 @@ export class AuthService {
   public readonly isAuthenticated = computed(() => this._currentUser() !== null);
 
   // 1. Giriş Yapma
-  login(credentials: LoginRequest): Observable<ApiResponse<AuthResultDto>> {
+login(credentials: LoginRequest): Observable<ApiResponse<AuthResultDto>> {
     this._isLoading.set(true);
-    // withCredentials Interceptor'da otomatik eklenecek, burayı tertemiz bırakıyoruz.
+
     return this.http.post<ApiResponse<AuthResultDto>>(`${this.authUrl}/login`, credentials, {
+      // Cookie'lerin (Access/Refresh Token) tarayıcıya kaydedilmesi ve gönderilmesi için şart:
       withCredentials: true
     }).pipe(
       tap({
-        next: (response) => {
-          const data = response.data;
-          // Şifre yenileme gerekmiyorsa state'e al.
-          if (data && !data.requiresPasswordReset) {
+        next: (res) => {
+          // Backend'den dönen veri hiyerarşisi: res.data.response
+          const authData = res.data?.response;
+
+          if (authData && !authData.requiresPasswordReset) {
             this._currentUser.set({
-              userId: data.userId,
-              fullName: data.fullName,
-              email: data.email,
-              roles: data.roles
+              userId: authData.userId,
+              fullName: `${authData.firstName} ${authData.lastName}`.trim(),
+              email: authData.email,
+              roles: authData.roles || []
             });
           }
         },
@@ -108,10 +110,9 @@ export class AuthService {
   }
 
   // POST: api/auth/resend-confirmation-email
-  // Kullanıcı mailini alamadıysa veya linkin süresi dolduysa yeni mail tetikler
-  resendConfirmationEmail(email: string): Observable<ApiResponse<any>> {
+  resendConfirmationEmail(emailOrUsername: string): Observable<ApiResponse<any>> {
     this._isLoading.set(true);
-    return this.http.post<ApiResponse<any>>(`${this.authUrl}/resend-confirmation-email`, { email }).pipe(
+    return this.http.post<ApiResponse<any>>(`${this.authUrl}/resend-confirmation-email`, { emailOrUsername }).pipe(
       finalize(() => this._isLoading.set(false))
     );
   }

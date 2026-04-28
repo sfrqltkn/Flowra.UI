@@ -1,0 +1,69 @@
+<div class="flex h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+
+      <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 hidden md:flex flex-col shadow-sm transition-colors duration-300">
+        <div class="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800">
+          <span class="text-xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
+            Flowra Admin
+          </span>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+          <a routerLink="/admin/overview" routerLinkActive="bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <i class="fas fa-chart-pie w-5 text-center"></i> Özet
+          </a>
+          <a routerLink="/admin/users" routerLinkActive="bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <i class="fas fa-users w-5 text-center"></i> Kullanıcılar
+          </a>
+          <a routerLink="/admin/settings" routerLinkActive="bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <i class="fas fa-cog w-5 text-center"></i> Sistem Ayarları
+          </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+          <div class="flex items-center gap-3 mb-4 px-2">
+            <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold">
+              {{ getUserInitials() }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-slate-900 dark:text-white truncate">
+                {{ authService.currentUser()?.fullName }}
+              </p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 truncate">Administrator</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 shadow-sm transition-colors duration-300 z-10">
+          <div class="flex items-center gap-4">
+            <button class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+              <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h2 class="text-lg font-semibold text-slate-800 dark:text-white hidden sm:block">Kontrol Paneli</h2>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <button (click)="toggleTheme()" class="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors">
+              <i class="fas" [ngClass]="(isDarkMode$ | async) ? 'fa-sun text-amber-400' : 'fa-moon text-indigo-600'"></i>
+            </button>
+
+            <div class="w-px h-6 bg-slate-200 dark:bg-slate-700"></div>
+
+            <button (click)="logout()" class="text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center gap-2 transition-colors">
+              <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+            </button>
+          </div>
+        </header>
+
+        <main class="flex-1 overflow-auto p-6 relative">
+          <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMTQ4LCAxNjMsIDE4NCwgMC4xNSkiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] dark:[mask-image:linear-gradient(to_bottom,rgba(255,255,255,0.05),transparent)] pointer-events-none"></div>
+
+          <div class="relative z-10">
+            <router-outlet></router-outlet>
+          </div>
+        </main>
+
+      </div>
+    </div>

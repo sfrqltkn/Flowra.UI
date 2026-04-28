@@ -186,20 +186,37 @@ export class LoginPage implements OnInit, OnDestroy {
     this.alertMessage = null;
     this.unconfirmedEmail = null;
 
-    this.authService.login(this.loginForm.value).subscribe({
-      next: (response) => {
-        if (response.data?.requiresPasswordReset) {
-          this.router.navigate(['/auth/change-password'], {
-            queryParams: { token: response.data.resetPasswordToken }
-          });
-        } else {
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-          this.router.navigateByUrl(returnUrl);
+  this.authService.login(this.loginForm.value).subscribe({
+  next: (res) => {
+    const authData = res.data?.response;
+
+    if (authData?.requiresPasswordReset) {
+      this.router.navigate(['/auth/reset-password'], {
+        queryParams: { token: authData.resetPasswordToken }
+      });
+    } else {
+      const roles = authData?.roles || [];
+      let targetUrl = this.route.snapshot.queryParams['returnUrl'];
+
+      // Eğer kullanıcı Admin ise
+      if (roles.includes('Admin')) {
+        // Özel bir linke gitmeye çalışmıyorsa veya sadece anasayfa/dashboard'a gitmeye çalıştıysa Admin Paneline yönlendir
+        if (!targetUrl || targetUrl === '/' || targetUrl === '/dashboard') {
+          targetUrl = '/admin/overview';
         }
-      },
+      }
+      // Normal kullanıcı ise
+      else {
+        if (!targetUrl || targetUrl === '/') {
+          targetUrl = '/dashboard';
+        }
+      }
+
+      this.router.navigateByUrl(targetUrl);
+    }
+  },
       error: (err: ApiError) => {
-        // 1. DURUM: Doğrulanmamış E-Posta (401 Unauthorized)
-        if (err.status === 401 && err.detail?.toLowerCase().includes('doğrulanmamış')) {
+        if (err.status === 422 && err.detail?.toLowerCase().includes('auth_login_emailnotconfirmed')) {
           this.unconfirmedEmail = this.loginForm.value.emailOrUsername;
           this.alertMessage = {
             type: 'warning',

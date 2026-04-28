@@ -13,23 +13,19 @@ export interface RegisterRequest {
   password: string;
 }
 
-// 2. Login sonrası Backend'den dönen veri (AuthResultDto)
-export interface AuthResultDto {
+export interface LoginResponseDto {
   userId: number;
+  userName: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  username: string;
-  fullName: string;
   roles: string[];
-
   requiresPasswordReset: boolean;
-  resetPasswordToken?: string;
+  resetPasswordToken?: string | null;
+}
 
-  // Bunları TS tarafında kullanmayacağız (Cookie'de kalacak) ama
-  // tip güvenliği ve DTO bütünlüğü için burada tanımlı olmaları iyidir.
-  accessToken?: string;
-  accessTokenExpiresAtUtc?: string;
-  refreshToken?: string;
-  refreshTokenExpiresAtUtc?: string;
+export interface AuthResultDto {
+  response: LoginResponseDto;
 }
 
 // 3. Angular UI tarafında Signal/BehaviorSubject içinde tutacağımız aktif kullanıcı
