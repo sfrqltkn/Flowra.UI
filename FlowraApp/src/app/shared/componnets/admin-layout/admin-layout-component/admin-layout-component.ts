@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { ThemeService } from '../../../../core/services/theme/theme.service';
 import { RouterModule } from '@angular/router';
@@ -15,7 +15,9 @@ export class AdminLayoutComponent {
   themeService = inject(ThemeService);
 
   isDarkMode$ = this.themeService.isDarkMode$;
-
+  userFullName = computed(() => {
+    return this.authService.currentUser()?.fullName || 'Bilinmeyen Kullanıcı';
+  });
   toggleTheme() {
     this.themeService.toggleTheme();
   }
@@ -23,9 +25,8 @@ export class AdminLayoutComponent {
   logout() {
     this.authService.logout();
   }
-
-  getUserInitials(): string {
-    const name = this.authService.currentUser()?.fullName || 'A';
-    return name.charAt(0).toUpperCase();
-  }
+  userInitials = computed(() => {
+      const name = this.userFullName();
+      return name.charAt(0).toUpperCase();
+  });
 }

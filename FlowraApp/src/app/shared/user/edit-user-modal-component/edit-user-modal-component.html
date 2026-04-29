@@ -1,0 +1,24 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-lg shadow-xl animate-in zoom-in-95 duration-200">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white">Kullanıcıyı Düzenle</h3>
+      <button (click)="close.emit(false)" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+    </div>
+
+    <form [formGroup]="editForm" (ngSubmit)="onSubmit()" class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <app-base-input-component label="Ad" [control]="getControl('firstName')" icon="fas fa-user"></app-base-input-component>
+        <app-base-input-component label="Soyad" [control]="getControl('lastName')" icon="fas fa-user"></app-base-input-component>
+      </div>
+
+      <app-base-input-component label="Kullanıcı Adı" [control]="getControl('userName')" icon="fas fa-at"></app-base-input-component>
+      <app-base-input-component label="E-posta" type="email" [control]="getControl('email')" icon="fas fa-envelope"></app-base-input-component>
+      <app-base-input-component label="Telefon" type="tel" [control]="getControl('phoneNumber')" icon="fas fa-phone"></app-base-input-component>
+
+      <div class="flex gap-3 mt-6">
+        <button type="button" (click)="close.emit(false)" class="flex-1 px-4 py-2 text-sm font-medium bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200">İptal</button>
+        <app-custom-button-component type="submit" variant="primary">Kaydet</app-custom-button-component>
+      </div>
+    </form>
+  </div>
+</div>

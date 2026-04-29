@@ -1,1 +1,89 @@
-<p>over-view-component works!</p>
+<div class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Sisteme Genel Bakış</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Bugün sistemde neler olup bittiğinin hızlı bir özeti.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between transition-colors duration-300">
+          <div>
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Toplam Kullanıcı</p>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mt-1">1,248</h3>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-xl">
+            <i class="fas fa-users"></i>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between transition-colors duration-300">
+          <div>
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Bugün Katılanlar</p>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mt-1">42</h3>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-xl">
+            <i class="fas fa-user-plus"></i>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between transition-colors duration-300">
+          <div>
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Aktif Oturumlar</p>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mt-1">156</h3>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 text-xl">
+            <i class="fas fa-bolt"></i>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between transition-colors duration-300">
+          <div>
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Sunucu Durumu</p>
+            <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">Normal</h3>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 text-xl relative">
+            <i class="fas fa-server"></i>
+            <span class="absolute top-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 transition-colors duration-300">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Haftalık Aktivite</h2>
+            <button class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">Rapor Çıkar</button>
+          </div>
+          <div class="h-64 w-full rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center bg-slate-50 dark:bg-slate-900/50">
+            <span class="text-slate-400 dark:text-slate-500 text-sm flex items-center gap-2">
+              <i class="fas fa-chart-line"></i> Grafik Bileşeni Buraya Eklenecek
+            </span>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 transition-colors duration-300">
+          <h2 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Son Kayıt Olanlar</h2>
+          <div class="space-y-4">
+
+            @for (i of [1, 2, 3, 4]; track i) {
+            <div> class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3 last:border-0 last:pb-0">
+              <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 font-medium">
+                U{{i}}
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-slate-900 dark:text-white truncate">Kullanıcı {{i}}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 truncate">user{{i}}&#64;example.com</p>
+              </div>
+              <span class="text-xs text-slate-400 dark:text-slate-500">2d önce</span>
+            </div>
+          }
+          </div>
+          <button class="w-full mt-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+            Tümünü Gör
+          </button>
+        </div>
+
+      </div>
+    </div>

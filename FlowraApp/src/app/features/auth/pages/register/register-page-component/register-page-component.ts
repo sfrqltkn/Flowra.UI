@@ -44,7 +44,7 @@ export class RegisterPageComponent implements OnInit {
       lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100), AuthValidators.noWhitespace(), AuthValidators.onlyAlphabetic()]],
       userName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), AuthValidators.noWhitespace(), Validators.pattern(/^[a-zA-Z0-9_.]+$/)]],
       email: ['', [Validators.required, Validators.maxLength(256), Validators.email, AuthValidators.noWhitespace()]],
-      phoneNumber: ['', [Validators.minLength(10), Validators.maxLength(20), Validators.pattern(/^[\d\+\-\(\)\s]+$/)]],
+      phoneNumber: ['', [Validators.required,Validators.minLength(10), Validators.maxLength(20), Validators.pattern(/^[\d\+\-\(\)\s]+$/)]],
       password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(100), AuthValidators.noWhitespace(), AuthValidators.passwordComplexity()]],
       confirmPassword: ['', [Validators.required]]
     }, {

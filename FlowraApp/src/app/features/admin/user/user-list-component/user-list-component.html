@@ -1,0 +1,90 @@
+<div class="space-y-6 p-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Kullanıcı Yönetimi</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Sistemdeki tüm kullanıcıları yönetin.</p>
+    </div>
+    <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm shadow-indigo-500/20">
+      + Yeni Kullanıcı Ekle
+    </button>
+  </div>
+
+  <div class="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit">
+    <button (click)="toggleTab(Status.Active)"
+            [class.bg-white]="activeTab() === Status.Active"
+            [class.dark:bg-slate-700]="activeTab() === Status.Active"
+            class="px-6 py-2 text-sm font-medium rounded-lg transition-all text-slate-600 dark:text-slate-300">Aktifler</button>
+    <button (click)="toggleTab(Status.Passive)"
+            [class.bg-white]="activeTab() === Status.Passive"
+            [class.dark:bg-slate-700]="activeTab() === Status.Passive"
+            class="px-6 py-2 text-sm font-medium rounded-lg transition-all text-slate-600 dark:text-slate-300">Pasifler</button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-12">
+      <i class="fas fa-circle-notch fa-spin text-3xl text-indigo-500"></i>
+    </div>
+  } @else {
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+      <table class="w-full table-fixed text-left">
+        <thead class="bg-slate-50 dark:bg-slate-800/50">
+          <tr class="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+            <th class="px-6 py-4 font-semibold w-3/12">Kullanıcı</th>
+            <th class="px-6 py-4 font-semibold w-4/12">Email</th>
+            <th class="px-6 py-4 font-semibold w-3/12">Roller</th>
+            <th class="px-6 py-4 font-semibold w-2/12 text-right">İşlemler</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          @for (user of filteredUsers(); track user.id) {
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+              <td class="px-6 py-4 flex items-center gap-3 truncate">
+                <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 flex items-center justify-center font-bold text-xs shrink-0">
+                  {{ user.userName.charAt(0).toUpperCase() }}
+                </div>
+                <span class="text-sm font-medium text-slate-900 dark:text-white truncate">{{ user.userName }}</span>
+              </td>
+              <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 truncate" title="{{user.email}}">{{ user.email }}</td>
+              <td class="px-6 py-4 truncate">
+                 <div class="flex gap-1">
+                   @for (role of user.roles; track role) {
+                     <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-[10px] font-bold uppercase rounded text-slate-600 dark:text-slate-300">{{ role }}</span>
+                   }
+                 </div>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button (click)="openEdit(user.id)" class="p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg"><i class="fas fa-edit"></i></button>
+                  <button (click)="toggleLock(user.id)" class="p-2 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg"><i class="fas fa-lock"></i></button>
+                  <button (click)="confirmDelete(user.id)" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="4" class="px-6 py-12 text-center text-slate-400">Kullanıcı bulunamadı.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (isDeleteModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-xl">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white">Silmeyi Onayla</h3>
+      <p class="text-sm text-slate-500 mt-2">Bu kullanıcıyı silmek istediğinize emin misiniz?</p>
+      <div class="flex gap-3 mt-6">
+        <button (click)="cancelDelete()" class="flex-1 py-2 text-sm font-medium bg-slate-100 dark:bg-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200">İptal</button>
+        <button (click)="executeDelete()" class="flex-1 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Sil</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (isEditModalOpen()) {
+  <app-edit-user-modal
+    [user]="editingUser()!"
+    (close)="handleEditClose($event)">
+  </app-edit-user-modal>
+}

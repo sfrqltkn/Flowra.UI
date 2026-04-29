@@ -22,6 +22,9 @@ export class AuthService {
   public readonly isLoading = this._isLoading.asReadonly();
   public readonly isAuthenticated = computed(() => this._currentUser() !== null);
 
+  private readonly _isInitialized = signal<boolean>(false);
+  public readonly isInitialized = this._isInitialized.asReadonly();
+
   // 1. Giriş Yapma
 login(credentials: LoginRequest): Observable<ApiResponse<AuthResultDto>> {
     this._isLoading.set(true);
@@ -65,16 +68,30 @@ login(credentials: LoginRequest): Observable<ApiResponse<AuthResultDto>> {
     return this.http.post<ApiResponse<AuthResultDto>>(`${this.authUrl}/refresh-token`, {});
   }
 
-  fetchMe(): Observable<ApiResponse<UserState>> {
+  fetchMe(): Observable<ApiResponse<any>> {
     this._isLoading.set(true);
-    return this.http.get<ApiResponse<UserState>>(`${this.authUrl}/me`, {
-      // Interceptor'a "bu bir ilk kontrol isteğidir" diyoruz
+    return this.http.get<ApiResponse<any>>(`${this.authUrl}/me`, {
+      withCredentials: true,
       context: new HttpContext().set(IS_INITIAL_AUTH_CHECK, true)
     }).pipe(
       tap({
-        next: (res) => this._currentUser.set(res.data),
+        next: (res) => {
+          const data = res.data;
+
+          const mappedFullName = data.fullName || `${data.firstName || ''} ${data.lastName || ''}`.trim();
+
+          this._currentUser.set({
+            userId: data.id || data.userId,
+            fullName: mappedFullName,
+            email: data.email,
+            roles: data.roles || []
+          });
+        },
         error: () => this._currentUser.set(null),
-        finalize: () => this._isLoading.set(false)
+        finalize: () => {
+          this._isLoading.set(false);
+          this._isInitialized.set(true);
+        }
       })
     );
   }
