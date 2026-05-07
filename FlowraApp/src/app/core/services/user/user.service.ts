@@ -3,7 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { environment } from "../../../../environments/environment";
 import { Observable } from "rxjs";
 import { ApiResponse } from "../../models/api-response.model";
-import { UserDto } from "../../models/user.model";
+import { CreateUserRequest, UserDto } from "../../models/user.model";
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -12,6 +12,10 @@ export class UserService {
 
   getAll(): Observable<ApiResponse<UserDto[]>> {
     return this.http.get<ApiResponse<UserDto[]>>(this.url);
+  }
+
+  create(data: CreateUserRequest): Observable<ApiResponse<number>> {
+    return this.http.post<ApiResponse<number>>(`${this.url}/create`, data);
   }
 
   setActive(id: number, isActive: boolean): Observable<ApiResponse<void>> {

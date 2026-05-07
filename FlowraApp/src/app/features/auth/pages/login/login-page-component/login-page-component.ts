@@ -191,10 +191,14 @@ export class LoginPage implements OnInit, OnDestroy {
     const authData = res.data?.response;
 
     if (authData?.requiresPasswordReset) {
-      this.router.navigate(['/auth/reset-password'], {
-        queryParams: { token: authData.resetPasswordToken }
-      });
-    } else {
+          this.router.navigate(['/auth/reset-password'], {
+            queryParams: {
+              userId: authData.userId,
+              token: authData.resetPasswordToken,
+              initialSetup: true
+            }
+          });
+     } else {
       const roles = authData?.roles || [];
       let targetUrl = this.route.snapshot.queryParams['returnUrl'];
 

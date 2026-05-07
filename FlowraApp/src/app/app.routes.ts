@@ -70,9 +70,14 @@ export const routes: Routes = [
         path: 'overview',
         loadComponent: () => import('./features/admin/overview/over-view-component/over-view-component').then(c => c.OverViewComponent)
       },
-      { path: 'users',
-        loadComponent: () => import('./features/admin/user/user-list-component/user-list-component').then(c => c.UserListComponent) }
-      // Buraya admin menü alt sayfalarını ekleyebilirsin (Kullanıcılar, Ayarlar vs.)
+      {
+        path: 'users',
+        loadComponent: () => import('./features/admin/user/user-list-component/user-list-component').then(c => c.UserListComponent)
+      },
+      {
+        path: 'roles',
+        loadComponent: () => import('./features/admin/role-list-component/role-list-component').then(c => c.RoleListComponent)
+      }
     ]
   },
 

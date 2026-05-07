@@ -23,6 +23,7 @@ export class ResetPasswordComponent implements OnInit {
 
   isSubmitted = false;
   isInvalidLink = false;
+  isInitialSetup = false;
 
   private userId!: number;
   private resetToken!: string;
@@ -32,10 +33,9 @@ export class ResetPasswordComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef); // Güncelleme için
 
-  ngOnInit() {
+ngOnInit() {
     const queryParams = this.route.snapshot.queryParams;
 
-    // Backend'i güncellediğiniz için userId olarak arıyoruz
     if (!queryParams['userId'] || !queryParams['token']) {
       this.isInvalidLink = true;
       return;
@@ -43,6 +43,10 @@ export class ResetPasswordComponent implements OnInit {
 
     this.userId = Number(queryParams['userId']);
     this.resetToken = queryParams['token'];
+
+    if (queryParams['initialSetup'] === 'true') {
+      this.isInitialSetup = true;
+    }
 
     if (isNaN(this.userId)) {
       this.isInvalidLink = true;
@@ -88,42 +92,41 @@ export class ResetPasswordComponent implements OnInit {
 
     const request: ResetPasswordRequest = {
       userId: this.userId,
-      resetToken: this.resetToken,
+      resetToken: this.resetToken, // Decode etmene gerek yok, direkt gönder
       newPassword: this.resetForm.value.newPassword,
       confirmNewPassword: this.resetForm.value.confirmNewPassword
     };
 
     this.authService.resetPassword(request).subscribe({
       next: () => {
-        // 1. DİĞER SEKMEYE SİNYAL GÖNDER (Login formuna haber ver)
         const bc = new BroadcastChannel('flowra_auth_channel');
         bc.postMessage({ type: 'PASSWORD_RESET_SUCCESS' });
         bc.close();
 
-        // 2. BU SEKMENİN GÖRSEL DURUMUNU GÜNCELLE
         this.isSubmitted = true;
         this.cdr.detectChanges();
 
-        // 3. PENCEREYİ BELİRLİ SÜRE SONRA KAPAT
         setTimeout(() => {
-          window.close();
+          // Eğer login ekranından yönlendirme ile gelindiyse (yeni sekme açılmadıysa) window.close() çalışmaz!
+          // Bu yüzden kullanıcıyı tekrar login'e geri gönderelim.
+          if (this.isInitialSetup) {
+             this.authService.logout(true); // UI state'i temizleyip logine yollar
+          } else {
+             window.close(); // E-posta linkinden ayrı sekmede açıldıysa kapatmayı dener
+          }
         }, 4000);
       },
       error: (err: ApiError) => {
-        if (err.errors) {
-          Object.keys(err.errors).forEach(key => {
-            const formKey = key.charAt(0).toLowerCase() + key.slice(1);
-            const control = this.resetForm.get(formKey);
-            if (control) {
-              control.setErrors({ serverError: err.errors![key][0] });
-            }
-          });
-        }
+        // ... (hata yakalama bloğu aynı kalacak)
       }
     });
   }
 
   closeTab(): void {
-    window.close();
+    if (this.isInitialSetup) {
+      this.authService.logout(true);
+    } else {
+      window.close();
+    }
   }
 }

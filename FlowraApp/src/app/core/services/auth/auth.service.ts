@@ -13,8 +13,6 @@ export class AuthService {
   private router = inject(Router);
 
   private readonly authUrl = `${environment.apiUrl}/auth`;
-
-  // Sinyal (Signal) tabanlı reaktif durum yönetimi
   private readonly _currentUser = signal<UserState | null>(null);
   private readonly _isLoading = signal<boolean>(false);
 
@@ -30,12 +28,10 @@ login(credentials: LoginRequest): Observable<ApiResponse<AuthResultDto>> {
     this._isLoading.set(true);
 
     return this.http.post<ApiResponse<AuthResultDto>>(`${this.authUrl}/login`, credentials, {
-      // Cookie'lerin (Access/Refresh Token) tarayıcıya kaydedilmesi ve gönderilmesi için şart:
       withCredentials: true
     }).pipe(
       tap({
         next: (res) => {
-          // Backend'den dönen veri hiyerarşisi: res.data.response
           const authData = res.data?.response;
 
           if (authData && !authData.requiresPasswordReset) {
@@ -63,9 +59,10 @@ login(credentials: LoginRequest): Observable<ApiResponse<AuthResultDto>> {
     );
   }
 
-  // 2. Refresh Token İsteği (Interceptor kullanacak)
   refreshToken(): Observable<ApiResponse<AuthResultDto>> {
-    return this.http.post<ApiResponse<AuthResultDto>>(`${this.authUrl}/refresh-token`, {});
+    return this.http.post<ApiResponse<AuthResultDto>>(`${this.authUrl}/refresh-token`, {}, {
+      withCredentials: true
+    });
   }
 
   fetchMe(): Observable<ApiResponse<any>> {

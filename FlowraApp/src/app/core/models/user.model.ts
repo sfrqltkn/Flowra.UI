@@ -8,3 +8,9 @@ export interface UserDto {
   roles: string[];
   phoneNumber: string;
 }
+
+export interface CreateUserRequest {
+  email: string;
+  firstName: string;
+  lastName: string;
+}

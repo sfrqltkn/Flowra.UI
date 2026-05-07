@@ -5,11 +5,12 @@ import { UserService } from '../../../../core/services/user/user.service';
 import { UserStatus } from '../../../../core/enum/user-status.enum';
 import { EditUserModalComponent } from '../../../../shared/user/edit-user-modal-component/edit-user-modal-component';
 import { AuthService } from '../../../../core/services/auth/auth.service';
+import { CreateUserModalComponent } from '../../../../shared/user/create-user-modal-component/create-user-modal-component';
 
 @Component({
   selector: 'app-user-list-component',
   standalone: true,
-  imports: [CommonModule,EditUserModalComponent],
+  imports: [CommonModule,EditUserModalComponent,CreateUserModalComponent],
   templateUrl: './user-list-component.html',
   styleUrl: './user-list-component.scss',
 })
@@ -20,6 +21,7 @@ export class UserListComponent implements OnInit {
   users = signal<UserDto[]>([]);
   isLoading = signal<boolean>(true);
   activeTab = signal<UserStatus>(UserStatus.Active);
+  isCreateModalOpen = signal<boolean>(false);
 
   isDeleteModalOpen = signal<boolean>(false);
   deleteTargetId = signal<number | null>(null);
@@ -71,34 +73,26 @@ export class UserListComponent implements OnInit {
     }
   }
   handleEditClose(success: boolean) {
-    // Düzenlenen kullanıcının ID'sini geçici bir değişkene alalım
     const editedUserId = this.editingUser()?.id;
 
     this.isEditModalOpen.set(false);
-    this.editingUser.set(null); // Modal kapandığında veriyi temizle
+    this.editingUser.set(null);
 
     if (success) {
-      this.loadUsers(); // Tabloyu yenile
+      this.loadUsers();
 
-      // --- KRİTİK KONTROL ---
-      // Eğer düzenlediğimiz kullanıcı, şu an sisteme giriş yapmış olan ("Ben") ise:
       const currentUser = this.authService.currentUser();
       if (currentUser && editedUserId === currentUser.userId) {
-        // Arka planda sessizce taze bilgileri çek.
-        // fetchMe, _currentUser sinyalini güncelleyecek ve
-        // AdminLayout'taki computed sinyaller anında tetiklenip UI'ı değiştirecektir.
         this.authService.fetchMe().subscribe();
       }
     }
   }
 
-  // Silmeyi iptal et
   cancelDelete() {
     this.deleteTargetId.set(null);
     this.isDeleteModalOpen.set(false);
   }
 
-  // Delete İşlemleri
   confirmDelete(id: number) {
     this.deleteTargetId.set(id);
     this.isDeleteModalOpen.set(true);
@@ -117,4 +111,15 @@ export class UserListComponent implements OnInit {
       });
     }
   toggleLock(id: number) { /* API çağrısı */ }
+
+  openCreateModal() {
+    this.isCreateModalOpen.set(true);
+  }
+
+  handleCreateClose(success: boolean) {
+    this.isCreateModalOpen.set(false);
+    if (success) {
+      this.loadUsers(); // Başarılıysa listeyi yenile
+    }
+  }
 }
