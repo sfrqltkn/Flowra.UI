@@ -44,7 +44,14 @@ export class FinanceCalculatorService {
 
   cashBalance = computed(() => {
     const targetMonth = this.state.selectedMonth();
-    const targetRecord = this.state.cashRecords().find(r => r.monthYear === targetMonth);
+    const records = this.state.cashRecords();
+
+    if (!records || !Array.isArray(records)) return 0;
+
+    const targetRecord = records.find(r =>
+      r.monthYear && r.monthYear.substring(0, 7) === targetMonth
+    );
+
     return targetRecord ? targetRecord.balance : 0;
   });
 
@@ -52,7 +59,13 @@ export class FinanceCalculatorService {
   currentMonthExpenses = computed(() => this.getItemsForSelectedMonth(this.state.expenses()));
   currentMonthAssets = computed(() => {
     const targetMonth = this.state.selectedMonth();
-    return this.state.assets().filter(a => a.monthYear === targetMonth);
+    const assets = this.state.assets();
+
+    if (!assets || !Array.isArray(assets)) return [];
+
+    return assets.filter(a =>
+      a.monthYear && a.monthYear.substring(0, 7) === targetMonth
+    );
   });
 
 

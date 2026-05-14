@@ -13,6 +13,8 @@
 import { Routes } from '@angular/router';
 import { authGuard, noAuthGuard } from './core/guards/auth-guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { TransactionFormComponent } from './features/transaction-form-component/transaction-form-component';
+import { ReportComponent } from './features/report-component/report-component';
 
 export const routes: Routes = [
   // 1. ANA YÖNLENDİRME
@@ -23,35 +25,13 @@ export const routes: Routes = [
     path: 'auth',
     canActivate: [noAuthGuard],
     children: [
-      {
-        path: 'login',
-        loadComponent: () => import('./features/auth/pages/login/login-page-component/login-page-component').then(c => c.LoginPage)
-      },
-      {
-        path: 'register',
-        loadComponent: () => import('./features/auth/pages/register/register-page-component/register-page-component').then(c => c.RegisterPageComponent)
-      },
-      {
-        path: 'confirm-email',
-        loadComponent: () => import('./features/auth/pages/confirm-email-component/confirm-email-component').then(c => c.ConfirmEmailComponent)
-      },
-      {
-        path: 'forgot-password',
-        loadComponent: () => import('./features/auth/pages/forgot-password-component/forgot-password-component').then(c => c.ForgotPasswordComponent)
-      },
-      {
-        path: 'reset-password',
-        loadComponent: () => import('./features/auth/pages/reset-password-component/reset-password-component').then(c => c.ResetPasswordComponent)
-      },
-      {
-        path: 'resend-confirmation',
-        loadComponent: () => import('./features/auth/pages/resend-confirmation-component/resend-confirmation-component').then(c => c.ResendConfirmationComponent)
-      },
-      {
-        path: '',
-        redirectTo: 'login',
-        pathMatch: 'full'
-      }
+      { path: 'login', loadComponent: () => import('./features/auth/pages/login/login-page-component/login-page-component').then(c => c.LoginPage) },
+      { path: 'register', loadComponent: () => import('./features/auth/pages/register/register-page-component/register-page-component').then(c => c.RegisterPageComponent) },
+      { path: 'confirm-email', loadComponent: () => import('./features/auth/pages/confirm-email-component/confirm-email-component').then(c => c.ConfirmEmailComponent) },
+      { path: 'forgot-password', loadComponent: () => import('./features/auth/pages/forgot-password-component/forgot-password-component').then(c => c.ForgotPasswordComponent) },
+      { path: 'reset-password', loadComponent: () => import('./features/auth/pages/reset-password-component/reset-password-component').then(c => c.ResetPasswordComponent) },
+      { path: 'resend-confirmation', loadComponent: () => import('./features/auth/pages/resend-confirmation-component/resend-confirmation-component').then(c => c.ResendConfirmationComponent) },
+      { path: '', redirectTo: 'login', pathMatch: 'full' }
     ]
   },
 
@@ -61,36 +41,26 @@ export const routes: Routes = [
     canActivate: [authGuard, adminGuard],
     loadComponent: () => import('./shared/componnets/admin-layout/admin-layout-component/admin-layout-component').then(c => c.AdminLayoutComponent),
     children: [
-      {
-        path: '',
-        redirectTo: 'overview',
-        pathMatch: 'full'
-      },
-      {
-        path: 'overview',
-        loadComponent: () => import('./features/admin/overview/over-view-component/over-view-component').then(c => c.OverViewComponent)
-      },
-      {
-        path: 'users',
-        loadComponent: () => import('./features/admin/user/user-list-component/user-list-component').then(c => c.UserListComponent)
-      },
-      {
-        path: 'roles',
-        loadComponent: () => import('./features/admin/role-list-component/role-list-component').then(c => c.RoleListComponent)
-      }
+      { path: '', redirectTo: 'overview', pathMatch: 'full' },
+      { path: 'overview', loadComponent: () => import('./features/admin/overview/over-view-component/over-view-component').then(c => c.OverViewComponent) },
+      { path: 'users', loadComponent: () => import('./features/admin/user/user-list-component/user-list-component').then(c => c.UserListComponent) },
+      { path: 'roles', loadComponent: () => import('./features/admin/role-list-component/role-list-component').then(c => c.RoleListComponent) }
     ]
   },
 
-  // 4. STANDART KULLANICI SAYFALARI (Sadece Giriş Yapmış Kullanıcılar)
+  // 4. STANDART KULLANICI SAYFALARI (UserLayout İçinde Barınanlar)
   {
-    path: 'dashboard',
+    path: '', // Root seviyesinde çalışması için empty path kullanıyoruz
     canActivate: [authGuard],
-    loadComponent: () => import('./features/dashboard/dashboard-component').then(c => c.DashboardComponent)
-  },
-  {
-    path: 'assets',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/assets-component/assets-component').then(c => c.AssetsComponent)
+    loadComponent: () => import('./shared/componnets/user-layout-component/user-layout-component').then(c => c.UserLayoutComponent),
+    children: [
+      { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard-component').then(c => c.DashboardComponent) },
+      { path: 'assets', loadComponent: () => import('./features/assets-component/assets-component').then(c => c.AssetsComponent) },
+      { path: 'transactions', loadComponent: () => import('./features/transaction-component/transaction-component').then(c => c.TransactionComponent) },
+      { path: 'ai-advisor', loadComponent: () => import('./features/ai-advisor/ai-advisor').then(c => c.AiAdvisorComponent) },
+      { path: 'add-transaction', component: TransactionFormComponent },
+      { path: 'report', component: ReportComponent }, // YENİ EKLENEN ROTA
+    ]
   },
 
   // 5. 404 NOT FOUND YÖNETİMİ

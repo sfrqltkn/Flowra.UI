@@ -165,15 +165,40 @@ export class AssetsComponent implements OnInit {
     }
   }
 
-  // --- VARLIK İŞLEMLERİ ---
+  // Ekleme Metodu
   addAsset() {
     if (this.assetForm.valid) {
-      this.state.addAsset(this.assetForm.value);
-      this.assetForm.reset({
-        type: 'Gold',
-        monthYear: this.state.selectedMonth()
-      });
-      this.selectedAssetType = 'Gold'; // Reset sonrası UI'ı da altına çek
+      const formValue = this.assetForm.value;
+
+      // SADECE BURAYI DEĞİŞTİRİYORUZ: Sonuna T00:00:00Z ekledik
+      const payload = {
+        ...formValue,
+        monthYear: formValue.monthYear.length === 7
+                  ? `${formValue.monthYear}-01T00:00:00Z`
+                  : `${formValue.monthYear}T00:00:00Z`
+      };
+
+      this.state.addAsset(payload);
+      this.assetForm.reset({ type: 'Gold', monthYear: this.state.selectedMonth() });
+      this.selectedAssetType = 'Gold';
+    }
+  }
+
+  // Güncelleme Metodu
+  saveAssetEdit() {
+    if (this.editingAsset && this.editingAsset.id && this.editAssetForm.valid) {
+      const formValue = this.editAssetForm.value;
+
+      // SADECE BURAYI DEĞİŞTİRİYORUZ
+      const payload = {
+        ...formValue,
+        monthYear: formValue.monthYear.length === 7
+                  ? `${formValue.monthYear}-01T00:00:00Z`
+                  : `${formValue.monthYear}T00:00:00Z`
+      };
+
+      this.state.updateAsset(this.editingAsset.id, payload);
+      this.closeEditAssetModal();
     }
   }
 
@@ -194,11 +219,4 @@ export class AssetsComponent implements OnInit {
   }
 
   closeEditAssetModal() { this.editingAsset = null; }
-
-  saveAssetEdit() {
-    if (this.editingAsset && this.editingAsset.id && this.editAssetForm.valid) {
-      this.state.updateAsset(this.editingAsset.id, this.editAssetForm.value);
-      this.closeEditAssetModal();
-    }
-  }
 }
