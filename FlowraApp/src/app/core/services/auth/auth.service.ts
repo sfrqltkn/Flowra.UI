@@ -24,7 +24,7 @@ export class AuthService {
   public readonly isInitialized = this._isInitialized.asReadonly();
 
   // 1. Giriş Yapma
-login(credentials: LoginRequest): Observable<ApiResponse<AuthResultDto>> {
+  login(credentials: LoginRequest): Observable<ApiResponse<AuthResultDto>> {
     this._isLoading.set(true);
 
     return this.http.post<ApiResponse<AuthResultDto>>(`${this.authUrl}/login`, credentials, {

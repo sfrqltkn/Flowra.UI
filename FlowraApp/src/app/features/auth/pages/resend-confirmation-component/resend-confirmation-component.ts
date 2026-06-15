@@ -7,7 +7,7 @@ import { AuthLayoutComponent } from '../../../../shared/componnets/auth-layout/a
 import { BaseInputComponent } from '../../../../shared/componnets/base-input-component/base-input-component';
 import { CustomButtonComponent } from '../../../../shared/componnets/custom-button-component/custom-button-component';
 import { AuthService } from '../../../../core/services/auth/auth.service';
-import { AuthValidators } from '../../../../shared/validators/auth-validators/auth-validators';
+import { ToastService } from '../../../../core/services/notification/toast.service';
 import { ApiError } from '../../../../core/models/api-error.model';
 
 @Component({
@@ -29,19 +29,12 @@ export class ResendConfirmationComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);
+  private toastService = inject(ToastService);
   private router = inject(Router);
 
   ngOnInit() {
     this.resendForm = this.fb.group({
-      email: ['', {
-        validators: [
-          Validators.required,
-          AuthValidators.noWhitespace(),
-          Validators.email,
-          Validators.maxLength(256)
-        ],
-        updateOn: 'blur'
-      }]
+      email: ['', { validators: [], updateOn: 'blur' }]
     });
   }
 
@@ -59,12 +52,12 @@ export class ResendConfirmationComponent implements OnInit {
 
     this.authService.resendConfirmationEmail(emailValue).subscribe({
       next: () => {
-        // Başarılı olduğunda Login sayfasına yönlendir ve parametre ile bilgi ver
+        // Başarılı olduğunda Login sayfasına yönlendir (orada queryParam toast'u gösterilecek)
         this.router.navigate(['/auth/login'], { queryParams: { confirmationSent: 'true' } });
       },
       error: (err: ApiError) => {
-        // Backend'den dönen validasyon (400) veya bulunamadı (404) hatalarını yakala
-        if (err.errors) {
+        if (err.errors && Object.keys(err.errors).length > 0) {
+          // Field-level hatalar — forma yaz
           Object.keys(err.errors).forEach(key => {
             const formKey = key.charAt(0).toLowerCase() + key.slice(1);
             const control = this.resendForm.get(formKey);
@@ -72,9 +65,17 @@ export class ResendConfirmationComponent implements OnInit {
               control.setErrors({ serverError: err.errors![key][0] });
             }
           });
-        }
-        else if (err.detail) {
-          this.emailControl.setErrors({ serverError: err.detail });
+        } else {
+          // Genel hata toast — 400/404/409/422 (interceptor 401/403/5xx'i halletti)
+          const isClientError = err.status >= 400 && err.status < 500
+            && err.status !== 401
+            && err.status !== 403;
+          if (isClientError) {
+            this.toastService.error(
+              err.detail || 'Doğrulama bağlantısı gönderilemedi.',
+              err.title
+            );
+          }
         }
       }
     });

@@ -5,16 +5,19 @@ import { FinanceStateService } from '../../core/services/finance-state.service';
 import { FinanceCalculatorService } from '../../core/services/finance-calculator.service';
 import { FinanceApiService } from '../../core/services/finance-api-service';
 import { Asset, CashRecord } from '../../core/models/finance.models';
+import { ConfirmModalService } from '../../core/services/confirm-modal.service';
+import { CurrencyInputComponent } from '../../shared/componnets/currency-input-component/currency-input-component';
 
 @Component({
   selector: 'app-assets',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe],
+  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe, CurrencyInputComponent],
   templateUrl: './assets-component.html'
 })
 export class AssetsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private financeApi = inject(FinanceApiService);
+  private confirmModal = inject(ConfirmModalService);
   state = inject(FinanceStateService);
   calculator = inject(FinanceCalculatorService);
 
@@ -160,9 +163,13 @@ export class AssetsComponent implements OnInit {
 
   deleteCashRecord(id: number | undefined) {
     if (!id) return;
-    if (confirm('Bu ayın kasa kaydını silmek istediğinize emin misiniz?')) {
-      this.state.deleteCashRecord(id);
-    }
+    this.confirmModal.open({
+      title: 'Kasa Kaydını Sil',
+      message: 'Bu ayın kasa kaydını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
+      confirmText: 'Evet, Sil',
+      type: 'danger',
+      onConfirm: () => this.state.deleteCashRecord(id)
+    });
   }
 
   // Ekleme Metodu
@@ -174,8 +181,8 @@ export class AssetsComponent implements OnInit {
       const payload = {
         ...formValue,
         monthYear: formValue.monthYear.length === 7
-                  ? `${formValue.monthYear}-01T00:00:00Z`
-                  : `${formValue.monthYear}T00:00:00Z`
+          ? `${formValue.monthYear}-01T00:00:00Z`
+          : `${formValue.monthYear}T00:00:00Z`
       };
 
       this.state.addAsset(payload);
@@ -193,8 +200,8 @@ export class AssetsComponent implements OnInit {
       const payload = {
         ...formValue,
         monthYear: formValue.monthYear.length === 7
-                  ? `${formValue.monthYear}-01T00:00:00Z`
-                  : `${formValue.monthYear}T00:00:00Z`
+          ? `${formValue.monthYear}-01T00:00:00Z`
+          : `${formValue.monthYear}T00:00:00Z`
       };
 
       this.state.updateAsset(this.editingAsset.id, payload);
@@ -204,7 +211,13 @@ export class AssetsComponent implements OnInit {
 
   deleteAsset(id: number | undefined) {
     if (!id) return;
-    if (confirm('Bu varlığı silmek istediğinize emin misiniz?')) this.state.deleteAsset(id);
+    this.confirmModal.open({
+      title: 'Varlığı Sil',
+      message: 'Bu varlığı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
+      confirmText: 'Evet, Sil',
+      type: 'danger',
+      onConfirm: () => this.state.deleteAsset(id)
+    });
   }
 
   openEditAssetModal(asset: Asset) {

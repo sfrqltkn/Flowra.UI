@@ -11,7 +11,6 @@ import { ApiError } from "../../../../../core/models/api-error.model";
 import { AuthLayoutComponent } from "../../../../../shared/componnets/auth-layout/auth-layout-component";
 import { BaseInputComponent } from "../../../../../shared/componnets/base-input-component/base-input-component";
 import { CustomButtonComponent } from "../../../../../shared/componnets/custom-button-component/custom-button-component";
-import { AuthValidators } from "../../../../../shared/validators/auth-validators/auth-validators";
 
 @Component({
   selector: 'app-register',
@@ -40,17 +39,13 @@ export class RegisterPageComponent implements OnInit {
     this.isDarkMode$ = this.themeService.isDarkMode$;
 
     this.registerForm = this.fb.group({
-      firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100), AuthValidators.noWhitespace(), AuthValidators.onlyAlphabetic()]],
-      lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100), AuthValidators.noWhitespace(), AuthValidators.onlyAlphabetic()]],
-      userName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), AuthValidators.noWhitespace(), Validators.pattern(/^[a-zA-Z0-9_.]+$/)]],
-      email: ['', [Validators.required, Validators.maxLength(256), Validators.email, AuthValidators.noWhitespace()]],
-      phoneNumber: ['', [Validators.required,Validators.minLength(10), Validators.maxLength(20), Validators.pattern(/^[\d\+\-\(\)\s]+$/)]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(100), AuthValidators.noWhitespace(), AuthValidators.passwordComplexity()]],
-      confirmPassword: ['', [Validators.required]]
-    }, {
-      // Şifre eşleştirme kuralı tüm form grubuna uygulanır
-      validators: [AuthValidators.matchPasswords('password', 'confirmPassword')],
-      updateOn: 'blur'
+      firstName:       ['', { validators: [], updateOn: 'blur' }],
+      lastName:        ['', { validators: [], updateOn: 'blur' }],
+      userName:        ['', { validators: [], updateOn: 'blur' }],
+      email:           ['', { validators: [], updateOn: 'blur' }],
+      phoneNumber:     ['', { validators: [], updateOn: 'blur' }],
+      password:        ['', { validators: [], updateOn: 'blur' }],
+      confirmPassword: ['', { validators: [], updateOn: 'blur' }]
     });
   }
 
@@ -71,21 +66,33 @@ export class RegisterPageComponent implements OnInit {
     this.authService.register(registerData).subscribe({
       next: (response) => {
         // Backend'den Başarılı Mesajı
-        this.toastService.success(response.detail || 'Kayıt başarılı! Lütfen e-posta adresinizi doğrulayın.');
+        this.toastService.success(response.detail || 'Kayıt başarılı! Lütfen e-posta adresinizi doğrulayın.', 'Kayıt Başarılı');
         this.router.navigate(['/auth/login'], { queryParams: { checkEmail: 'true' } });
       },
       error: (err: ApiError) => {
-        // Backend'den Gelen Hataları (409 Conflict veya 400 Validation) Forma Bas
-        if (err.errors) {
+        if (err.errors && Object.keys(err.errors).length > 0) {
+          // Field-level hatalar (400 Validation / 409 Conflict) — forma yaz
           Object.keys(err.errors).forEach(key => {
-            const formKey = key.charAt(0).toLowerCase() + key.slice(1); // Örn: UserName -> userName
+            const formKey = key.charAt(0).toLowerCase() + key.slice(1);
             const control = this.registerForm.get(formKey);
             if (control) {
               control.setErrors({ serverError: err.errors![key][0] });
             }
           });
+        } else {
+          // Genel hata — sadece 400/404/409/422 (interceptor 401/403/5xx'i halletti)
+          const isClientError = err.status >= 400 && err.status < 500
+            && err.status !== 401
+            && err.status !== 403;
+          if (isClientError) {
+            this.toastService.error(
+              err.detail || 'Kayıt sırasında bir hata oluştu.',
+              err.title
+            );
+          }
         }
       }
     });
   }
+
 }

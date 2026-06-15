@@ -3,39 +3,39 @@
   subtitle="Hesabınıza giriş yaparak deneyiminize devam edebilirsiniz."
   formTitle="Hesabınıza Giriş Yapın">
 
-  <div *ngIf="alertMessage"
-       class="mb-6 p-4 rounded-xl border text-sm flex items-start gap-3 transition-all duration-500 animate-in fade-in slide-in-from-top-4 shadow-sm"
-       [ngClass]="{
-         'bg-indigo-50 border-indigo-200 text-indigo-800 dark:bg-indigo-900/30 dark:border-indigo-800/50 dark:text-indigo-300': alertMessage.type === 'info',
-         'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-900/30 dark:border-emerald-800/50 dark:text-emerald-300': alertMessage.type === 'success',
-         'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-800/50 dark:text-amber-300': alertMessage.type === 'warning',
-         'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800/50 dark:text-red-300': alertMessage.type === 'error'
-       }">
+  <!-- Doğrulanmamış e-posta inline kartı (sadece bu senaryo toast değil inline kalır) -->
+  @if (unconfirmedEmail) {
+    <div class="mb-6 p-4 rounded-xl border text-sm flex items-start gap-3 shadow-sm
+                bg-amber-50 border-amber-200 text-amber-800
+                dark:bg-amber-900/30 dark:border-amber-800/50 dark:text-amber-300
+                animate-in fade-in slide-in-from-top-4 duration-300">
 
-    <i class="mt-0.5 text-lg fas"
-       [ngClass]="{
-         'fa-info-circle text-indigo-600 dark:text-indigo-400': alertMessage.type === 'info',
-         'fa-check-circle text-emerald-600 dark:text-emerald-400': alertMessage.type === 'success',
-         'fa-exclamation-triangle text-amber-600 dark:text-amber-400': alertMessage.type === 'warning',
-         'fa-times-circle text-red-600 dark:text-red-400': alertMessage.type === 'error'
-       }"></i>
+      <i class="mt-0.5 text-lg fas fa-exclamation-triangle text-amber-600 dark:text-amber-400"></i>
 
-    <div class="flex-1">
-      <span class="font-medium leading-relaxed" [innerHTML]="alertMessage.text"></span>
+      <div class="flex-1">
+        <span class="font-medium leading-relaxed">
+          Hesabınız henüz doğrulanmamış. Giriş yapabilmek için e-posta adresinizi doğrulamanız gerekmektedir.
+        </span>
 
-      <div *ngIf="unconfirmedEmail" class="mt-4">
-        <button
-          type="button"
-          [disabled]="isResending"
-          (click)="resendConfirmation()"
-          class="text-xs font-bold px-4 py-2 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/50 dark:hover:bg-amber-800/60 text-amber-900 dark:text-amber-100 rounded-lg transition-colors border border-amber-200 dark:border-amber-700 flex items-center gap-2 outline-none focus:ring-2 focus:ring-amber-500">
-          <i class="fas" [ngClass]="isResending ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
-          Yeni Doğrulama Bağlantısı Gönder
-        </button>
+        <div class="mt-3">
+          <button
+            type="button"
+            id="btn-resend-confirmation"
+            [disabled]="isResending"
+            (click)="resendConfirmation()"
+            class="text-xs font-bold px-4 py-2
+                   bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/50 dark:hover:bg-amber-800/60
+                   text-amber-900 dark:text-amber-100
+                   rounded-lg transition-colors border border-amber-200 dark:border-amber-700
+                   flex items-center gap-2 outline-none focus:ring-2 focus:ring-amber-500
+                   disabled:opacity-60 disabled:cursor-not-allowed">
+            <i class="fas" [ngClass]="isResending ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
+            {{ isResending ? 'Gönderiliyor...' : 'Yeni Doğrulama Bağlantısı Gönder' }}
+          </button>
+        </div>
       </div>
-
     </div>
-  </div>
+  }
 
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
 
@@ -56,7 +56,8 @@
         icon="fas fa-lock">
       </app-base-input-component>
 
-      <a routerLink="/auth/forgot-password" class="absolute right-0 top-0 text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 transition-colors z-10">
+      <a routerLink="/auth/forgot-password"
+         class="absolute right-0 top-0 text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 transition-colors z-10">
         Şifremi Unuttum?
       </a>
     </div>
@@ -71,7 +72,8 @@
 
     <p class="text-center text-sm text-slate-500 dark:text-slate-400 mt-8">
       Hesabınız yok mu?
-      <a routerLink="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 transition-colors">
+      <a routerLink="/auth/register"
+         class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 transition-colors">
         Hemen Kayıt Ol
       </a>
     </p>

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -7,7 +7,7 @@ import { CustomButtonComponent } from '../../../../shared/componnets/custom-butt
 import { BaseInputComponent } from '../../../../shared/componnets/base-input-component/base-input-component';
 import { AuthLayoutComponent } from '../../../../shared/componnets/auth-layout/auth-layout-component';
 import { AuthService } from '../../../../core/services/auth/auth.service';
-import { AuthValidators } from '../../../../shared/validators/auth-validators/auth-validators';
+import { ToastService } from '../../../../core/services/notification/toast.service';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { ResetPasswordRequest } from '../../../../core/models/auth.model';
 
@@ -30,10 +30,10 @@ export class ResetPasswordComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);
+  private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
-  private cdr = inject(ChangeDetectorRef); // Güncelleme için
 
-ngOnInit() {
+  ngOnInit() {
     const queryParams = this.route.snapshot.queryParams;
 
     if (!queryParams['userId'] || !queryParams['token']) {
@@ -58,21 +58,8 @@ ngOnInit() {
 
   private initForm() {
     this.resetForm = this.fb.group({
-      newPassword: ['', {
-        validators: [
-          Validators.required,
-          Validators.minLength(6),
-          Validators.maxLength(20),
-          AuthValidators.passwordComplexity()
-        ],
-        updateOn: 'blur'
-      }],
-      confirmNewPassword: ['', {
-        validators: [Validators.required],
-        updateOn: 'blur'
-      }]
-    }, {
-      validators: [AuthValidators.matchPasswords('newPassword', 'confirmNewPassword')]
+      newPassword:        ['', { validators: [], updateOn: 'blur' }],
+      confirmNewPassword: ['', { validators: [], updateOn: 'blur' }]
     });
   }
 
@@ -92,7 +79,7 @@ ngOnInit() {
 
     const request: ResetPasswordRequest = {
       userId: this.userId,
-      resetToken: this.resetToken, // Decode etmene gerek yok, direkt gönder
+      resetToken: this.resetToken,
       newPassword: this.resetForm.value.newPassword,
       confirmNewPassword: this.resetForm.value.confirmNewPassword
     };
@@ -104,20 +91,40 @@ ngOnInit() {
         bc.close();
 
         this.isSubmitted = true;
-        this.cdr.detectChanges();
 
         setTimeout(() => {
-          // Eğer login ekranından yönlendirme ile gelindiyse (yeni sekme açılmadıysa) window.close() çalışmaz!
-          // Bu yüzden kullanıcıyı tekrar login'e geri gönderelim.
           if (this.isInitialSetup) {
-             this.authService.logout(true); // UI state'i temizleyip logine yollar
+            this.authService.logout(true); // UI state'i temizleyip login'e yollar
           } else {
-             window.close(); // E-posta linkinden ayrı sekmede açıldıysa kapatmayı dener
+            window.close(); // E-posta linkinden ayrı sekmede açıldıysa kapatmayı dener
           }
         }, 4000);
       },
       error: (err: ApiError) => {
-        // ... (hata yakalama bloğu aynı kalacak)
+        if (err.errors && Object.keys(err.errors).length > 0) {
+          // Field-level hatalar — forma yaz
+          Object.keys(err.errors).forEach(key => {
+            const formKey = key.charAt(0).toLowerCase() + key.slice(1);
+            const control = this.resetForm.get(formKey);
+            if (control) {
+              control.setErrors({ serverError: err.errors![key][0] });
+            }
+          });
+        } else {
+          // Genel hata toast — 400/404/409/422 (interceptor 401/403/5xx'i halletti)
+          const isClientError = err.status >= 400 && err.status < 500
+            && err.status !== 401
+            && err.status !== 403;
+          if (isClientError) {
+            this.toastService.error(
+              err.detail || 'Şifre sıfırlanırken bir hata oluştu.',
+              err.title
+            );
+            // Şifre alanını sıfırla ki kullanıcı yeniden denesin
+            this.resetForm.get('newPassword')?.reset();
+            this.resetForm.get('confirmNewPassword')?.reset();
+          }
+        }
       }
     });
   }

@@ -1,0 +1,114 @@
+<!-- Toast Container — fixed, top-right, above everything -->
+<div
+  aria-live="polite"
+  aria-atomic="false"
+  class="fixed bottom-24 right-6 z-[9999] flex flex-col gap-3 w-[360px] pointer-events-none">
+
+  @for (toast of toastService.toasts(); track trackById($index, toast)) {
+    <div
+      [attr.role]="toast.type === 'error' ? 'alert' : 'status'"
+      class="pointer-events-auto flex items-start gap-3 rounded-xl border px-4 py-3.5 shadow-xl backdrop-blur-md transition-all duration-300 min-h-[80px] w-full"
+      [class.toast-enter]="!toast.dismissing"
+      [class.toast-leave]="toast.dismissing"
+      [ngClass]="{
+        'bg-emerald-50/95 border-emerald-200 dark:bg-emerald-950/90 dark:border-emerald-800/60': toast.type === 'success',
+        'bg-red-50/95    border-red-200    dark:bg-red-950/90    dark:border-red-800/60':     toast.type === 'error',
+        'bg-amber-50/95  border-amber-200  dark:bg-amber-950/90  dark:border-amber-800/60':   toast.type === 'warning',
+        'bg-indigo-50/95 border-indigo-200 dark:bg-indigo-950/90 dark:border-indigo-800/60': toast.type === 'info'
+      }">
+
+      <!-- Icon -->
+      <span class="mt-0.5 shrink-0 text-lg leading-none"
+            [ngClass]="{
+              'text-emerald-600 dark:text-emerald-400': toast.type === 'success',
+              'text-red-600    dark:text-red-400':     toast.type === 'error',
+              'text-amber-600  dark:text-amber-400':   toast.type === 'warning',
+              'text-indigo-600 dark:text-indigo-400':  toast.type === 'info'
+            }">
+        <i class="fas"
+           [ngClass]="{
+             'fa-check-circle':         toast.type === 'success',
+             'fa-times-circle':         toast.type === 'error',
+             'fa-exclamation-triangle': toast.type === 'warning',
+             'fa-info-circle':          toast.type === 'info'
+           }"></i>
+      </span>
+
+      <!-- Body -->
+      <div class="flex-1 min-w-0">
+        @if (toast.title) {
+          <p class="text-sm font-semibold leading-snug mb-0.5"
+             [ngClass]="{
+               'text-emerald-900 dark:text-emerald-100': toast.type === 'success',
+               'text-red-900    dark:text-red-100':     toast.type === 'error',
+               'text-amber-900  dark:text-amber-100':   toast.type === 'warning',
+               'text-indigo-900 dark:text-indigo-100':  toast.type === 'info'
+             }">
+            {{ toast.title }}
+          </p>
+        }
+        <p class="text-sm leading-snug"
+           [ngClass]="{
+             'text-emerald-800 dark:text-emerald-200': toast.type === 'success',
+             'text-red-800    dark:text-red-200':     toast.type === 'error',
+             'text-amber-800  dark:text-amber-200':   toast.type === 'warning',
+             'text-indigo-800 dark:text-indigo-200':  toast.type === 'info'
+           }">
+          {{ toast.message }}
+        </p>
+      </div>
+
+      <!-- Close button -->
+      <button
+        type="button"
+        (click)="toastService.dismiss(toast.id)"
+        class="shrink-0 mt-0.5 rounded-md p-1 opacity-60 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2"
+        [ngClass]="{
+          'hover:bg-emerald-200/60 dark:hover:bg-emerald-800/40 focus:ring-emerald-500': toast.type === 'success',
+          'hover:bg-red-200/60    dark:hover:bg-red-800/40    focus:ring-red-500':     toast.type === 'error',
+          'hover:bg-amber-200/60  dark:hover:bg-amber-800/40  focus:ring-amber-500':   toast.type === 'warning',
+          'hover:bg-indigo-200/60 dark:hover:bg-indigo-800/40 focus:ring-indigo-500':  toast.type === 'info'
+        }"
+        aria-label="Kapat">
+        <i class="fas fa-times text-xs"
+           [ngClass]="{
+             'text-emerald-700 dark:text-emerald-300': toast.type === 'success',
+             'text-red-700    dark:text-red-300':     toast.type === 'error',
+             'text-amber-700  dark:text-amber-300':   toast.type === 'warning',
+             'text-indigo-700 dark:text-indigo-300':  toast.type === 'info'
+           }"></i>
+      </button>
+    </div>
+  }
+</div>
+
+<style>
+  .toast-enter {
+    animation: toastSlideIn 0.35s cubic-bezier(0.34, 1.3, 0.64, 1) both;
+  }
+  .toast-leave {
+    animation: toastFadeOut 0.38s ease forwards;
+  }
+
+  @keyframes toastSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(110%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  @keyframes toastFadeOut {
+    from {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(40%) scale(0.95);
+    }
+  }
+</style>

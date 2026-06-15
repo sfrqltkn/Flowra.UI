@@ -13,14 +13,14 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const authService = inject(AuthService);
 
   const authReq = request.clone({
-      withCredentials: true
+    withCredentials: true
   });
 
   const isInitialCheck = request.context.get(IS_INITIAL_AUTH_CHECK);
 
-return next(authReq).pipe(
-    catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !isInitialCheck && !request.url.includes('/auth/login')) {
+  return next(authReq).pipe(
+    catchError((error: any) => {
+      if (error.status === 401 && !isInitialCheck && !request.url.includes('/auth/login') && !request.url.includes('/auth/refresh-token')) {
         return handle401Error(authReq, next, authService);
       }
       return throwError(() => error);

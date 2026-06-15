@@ -3,10 +3,12 @@ import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from './core/services/theme/theme.service';
 import { AuthService } from './core/services/auth/auth.service';
+import { ToastContainerComponent } from './shared/componnets/toast-container/toast-container.component';
+import { ConfirmModalComponent } from './shared/componnets/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet, CommonModule, ToastContainerComponent, ConfirmModalComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

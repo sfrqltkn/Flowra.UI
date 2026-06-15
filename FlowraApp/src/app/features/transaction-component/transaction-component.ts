@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { FinanceStateService } from '../../core/services/finance-state.service';
 import { FinanceCalculatorService } from '../../core/services/finance-calculator.service';
 import { RouterLink } from '@angular/router';
+import { ConfirmModalService } from '../../core/services/confirm-modal.service';
+import { CurrencyInputComponent } from '../../shared/componnets/currency-input-component/currency-input-component';
 
 export interface TransactionItem {
   id?: number;
@@ -20,7 +22,7 @@ export interface TransactionItem {
 @Component({
   selector: 'app-transaction-component',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, DatePipe, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, CurrencyPipe, DatePipe, ReactiveFormsModule, RouterLink, CurrencyInputComponent],
   templateUrl: './transaction-component.html',
   styleUrl: './transaction-component.scss',
 })
@@ -28,6 +30,7 @@ export class TransactionComponent {
   state = inject(FinanceStateService);
   calculator = inject(FinanceCalculatorService);
   private fb = inject(FormBuilder);
+  private confirmModal = inject(ConfirmModalService);
 
   activeTab = signal<'all' | 'income' | 'expense'>('all');
   editingTx = signal<TransactionItem | null>(null);
@@ -92,9 +95,15 @@ export class TransactionComponent {
 
   deleteTransaction(id: number | undefined, type: string) {
     if (!id) return;
-    if (confirm('Bu işlemi silmek istediğinize emin misiniz?')) {
-      type === 'income' ? this.state.deleteIncome(id) : this.state.deleteExpense(id);
-    }
+    this.confirmModal.open({
+      title: 'İşlemi Sil',
+      message: 'Bu işlemi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
+      confirmText: 'Evet, Sil',
+      type: 'danger',
+      onConfirm: () => {
+        type === 'income' ? this.state.deleteIncome(id) : this.state.deleteExpense(id);
+      }
+    });
   }
 
   togglePaidStatus(id: number | undefined, type: string) {

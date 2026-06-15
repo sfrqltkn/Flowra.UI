@@ -2,10 +2,11 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FinanceStateService } from '../../core/services/finance-state.service';
 import { CommonModule, Location } from '@angular/common'; // LOCATION EKLENDİ
+import { CurrencyInputComponent } from '../../shared/componnets/currency-input-component/currency-input-component';
 
 @Component({
   selector: 'app-transaction-form-component',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, CurrencyInputComponent],
   templateUrl: './transaction-form-component.html',
   styleUrl: './transaction-form-component.scss',
 })
